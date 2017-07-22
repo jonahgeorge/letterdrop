@@ -11,6 +11,3 @@ type User struct {
   createdAt time.Time
   updatedAt time.Time
 }
-
-type Form struct {
-}
