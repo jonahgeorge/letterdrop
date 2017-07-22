@@ -9,7 +9,7 @@ import (
 const (
   USERS_FIND_BY_ID_SQL                 = "select * from users where id = $1"
   USERS_FIND_BY_EMAIL_AND_PASSWORD_SQL = "select * from users where email = lower($1) and password_digest = crypt($2, password_digest)"
-  USERS_INSERT_SQL                     = "insert into users (name, email, password_digest) values ($1, lower($2), crypt($3, gen_salt('bf', 8))) returning *"
+  USERS_INSERT_SQL                     = "insert into users (email, password_digest) values (lower($1), crypt($2, gen_salt('bf', 8))) returning *"
 )
 
 type UsersRepository struct {
@@ -56,5 +56,16 @@ func (repo *UsersRepository) FindByEmailAndPassword(email, password string) *Use
   }
 
   return user
+}
+
+func (repo *UsersRepository) Create(email, password string) (*User, error) {
+  user := new(User)
+
+  err := repo.db.QueryRow(USERS_INSERT_SQL, email, password).Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
+  if err != nil {
+    return nil, err
+  }
+
+  return user, nil
 }
 

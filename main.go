@@ -1,6 +1,7 @@
 package main
 
 import (
+  "log"
   "database/sql"
   "net/http"
   _ "github.com/lib/pq"
@@ -15,7 +16,7 @@ type Application struct {
 }
 
 func NewApplication() *Application {
-  db, _ := sql.Open("postgres", "jonahgeorge@127.0.0.1:3306/weatherglass_development")
+  db, _ := sql.Open("postgres", "postgres://jonahgeorge@localhost/letterbox_development?sslmode=disable")
   sessions := sessions.NewCookieStore([]byte("something-very-secret"))
 
   return &Application{
@@ -45,16 +46,19 @@ func main() {
 
   router := mux.NewRouter()
   router.HandleFunc("/", app.IndexHandler).Methods("GET")
+
   router.HandleFunc("/login", app.SessionsNewHandler).Methods("GET")
   router.HandleFunc("/login", app.SessionsCreateHandler).Methods("POST")
   router.HandleFunc("/logout", app.SessionsDestroyHandler).Methods("GET")
+
   router.HandleFunc("/signup", app.UsersNewHandler).Methods("GET")
   router.HandleFunc("/signup", app.UsersCreateHandler).Methods("POST")
-  router.HandleFunc("/forms", app.FormsIndexHandler).Methods("GET")
-  router.HandleFunc("/forms/{uuid}", app.FormsShowHandler).Methods("GET")
-  router.HandleFunc("/forms/new", app.FormsNewHandler).Methods("GET")
-  router.HandleFunc("/forms/new", app.FormsCreateHandler).Methods("POST")
 
-  http.ListenAndServe(":5000", router)
+  router.HandleFunc("/forms", app.FormsIndexHandler).Methods("GET")
+  router.HandleFunc("/forms/new", app.FormsNewHandler).Methods("GET")
+  router.HandleFunc("/forms", app.FormsCreateHandler).Methods("POST")
+  router.HandleFunc("/forms/{uuid}", app.FormsShowHandler).Methods("GET")
+
+  log.Fatal(http.ListenAndServe(":5000", router))
 }
 

@@ -3,7 +3,7 @@ package main
 import (
   "net/http"
   "github.com/flosch/pongo2"
-  "fmt"
+  // "log"
 )
 
 func (app *Application) UsersNewHandler(w http.ResponseWriter, r *http.Request) {
@@ -11,6 +11,16 @@ func (app *Application) UsersNewHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Request) {
-  fmt.Fprintf(w, "Users#create")
+  usersRepo := NewUsersRepository(app.db)
+  _, err := usersRepo.Create(r.PostFormValue("email"), r.PostFormValue("password"))
+  if err == nil {
+    // session.AddFlash("")
+    http.Redirect(w, r, "/", 302)
+  } else {
+    // session.AddFlash("")
+    app.Render(w, r, "users/new", pongo2.Context{
+      "email": r.PostFormValue("email"),
+    })
+  }
 }
 
