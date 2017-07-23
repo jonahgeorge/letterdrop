@@ -8,11 +8,13 @@ import (
 )
 
 func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.Request) {
-	formId, _ := strconv.Atoi(mux.Vars(r)["id"])
+	formUuid, _ := strconv.Atoi(mux.Vars(r)["uuid"])
 	r.ParseForm()
 
+	// Find form
+
 	j, _ := json.Marshal(r.Form)
-	_, err := NewSubmissionsRepository(app.db).Create(formId, string(j))
+	_, err := NewSubmissionsRepository(app.db).Create(formUuid, string(j))
 
 	if err != nil {
 		http.Error(w, "Something bad happened.", 500)

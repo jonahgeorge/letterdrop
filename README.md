@@ -2,7 +2,8 @@ letterbox
 ===
 
 ```sql
-create extension pgcrypto;
+create extension "pgcrypto";
+create extension "uuid-ossp";
 
 create table users (
   id serial,
@@ -16,6 +17,7 @@ create table users (
 create table forms (
   id serial,
   user_id int not null,
+  uuid uuid not null default uuid_generate_v4(),
   name text not null,
   description text,
   created_at timestamp without time zone not null default now(),

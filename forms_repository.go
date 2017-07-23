@@ -6,9 +6,25 @@ import (
 )
 
 const (
-	FORMS_FIND_BY_ID_SQL      = "select * from forms where id = $1"
-	FORMS_FIND_BY_USER_ID_SQL = "select * from forms where user_id = $1"
-	FORMS_INSERT_SQL          = "insert into forms (user_id, name, description) values ($1, $2, $3) returning *"
+	FORMS_FIND_BY_ID_SQL = `
+	select id, user_id, name, description, created_at, updated_at 
+	from forms 
+	where id = $1`
+
+	FORMS_FIND_BY_UUID_SQL = `
+	select id, user_id, name, description, created_at, updated_at 
+	from forms 
+	where uuid = $1`
+
+	FORMS_FIND_BY_USER_ID_SQL = `
+	select id, user_id, name, description, created_at, updated_at 
+	from forms 
+	where user_id = $1`
+
+	FORMS_INSERT_SQL = `
+	insert into forms (user_id, name, description) 
+	values ($1, $2, $3) 
+	returning id, user_id, name, description, created_at, updated_at`
 )
 
 type FormsRepository struct {
@@ -51,6 +67,16 @@ func (repo *FormsRepository) Create(userId int, name, description string) (*Form
 func (repo *FormsRepository) FindById(id int) (*Form, error) {
 	form := new(Form)
 	err := repo.db.QueryRow(FORMS_FIND_BY_ID_SQL, id).
+		Scan(&form.id, &form.userId, &form.name, &form.description, &form.createdAt, &form.updatedAt)
+	if err != nil && err == sql.ErrNoRows {
+		return nil, err
+	}
+	return form, err
+}
+
+func (repo *FormsRepository) FindByUuid(uuid string) (*Form, error) {
+	form := new(Form)
+	err := repo.db.QueryRow(FORMS_FIND_BY_UUID_SQL, uuid).
 		Scan(&form.id, &form.userId, &form.name, &form.description, &form.createdAt, &form.updatedAt)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, err
