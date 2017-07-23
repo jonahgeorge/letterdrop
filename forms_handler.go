@@ -26,12 +26,13 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 	session, _ := app.sessions.Get(r, "letterbox")
 	id := session.Values["userId"]
 
-	_, err := NewFormsRepository(app.db).Create(id.(int), r.PostFormValue("name"))
+	_, err := NewFormsRepository(app.db).Create(id.(int), r.PostFormValue("name"), r.PostFormValue("description"))
 	if err != nil {
 		session.AddFlash("An error occured while creating your form")
 		session.Save(r, w)
 		app.Render(w, r, "forms/new", pongo2.Context{
 			"name": r.PostFormValue("name"),
+			// TODO Inject form instead
 		})
 	} else {
 		session.AddFlash("Successfully created form!")
@@ -42,13 +43,40 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["uuid"])
+	id, _ := strconv.Atoi(vars["id"])
 
-	form := NewFormsRepository(app.db).FindById(id)
-	submissions := NewSubmissionsRepository(app.db).FindByFormId(form.id)
+	form, _ := NewFormsRepository(app.db).FindById(id)
+	submissions, _ := NewSubmissionsRepository(app.db).FindByFormId(form.id)
 
 	app.Render(w, r, "forms/show", pongo2.Context{
 		"form":        form,
 		"submissions": submissions,
 	})
+}
+
+func (app *Application) FormsEditHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+
+	form, _ := NewFormsRepository(app.db).FindById(id)
+	app.Render(w, r, "forms/edit", pongo2.Context{
+		"form": form,
+	})
+}
+
+func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+
+	form, err := NewFormsRepository(app.db).FindById(id)
+
+	// TODO Fix this
+
+	if err != nil {
+		app.Render(w, r, "forms/edit", pongo2.Context{
+			"form": form,
+		})
+	} else {
+		http.Redirect(w, r, "/forms/"+string(form.id), 302)
+	}
 }

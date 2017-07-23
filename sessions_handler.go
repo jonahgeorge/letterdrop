@@ -13,7 +13,7 @@ func (app *Application) SessionsCreateHandler(w http.ResponseWriter, r *http.Req
 	session, _ := app.GetSession(r)
 
 	userRepo := NewUsersRepository(app.db)
-	user := userRepo.FindByEmailAndPassword(r.PostFormValue("email"), r.PostFormValue("password"))
+	user, _ := userRepo.FindByEmailAndPassword(r.PostFormValue("email"), r.PostFormValue("password"))
 
 	if user != nil {
 		session.Values["userId"] = user.id

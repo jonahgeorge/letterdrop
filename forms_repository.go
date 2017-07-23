@@ -8,7 +8,7 @@ import (
 const (
 	FORMS_FIND_BY_ID_SQL      = "select * from forms where id = $1"
 	FORMS_FIND_BY_USER_ID_SQL = "select * from forms where user_id = $1"
-	FORMS_INSERT_SQL          = "insert into forms (user_id, name) values ($1, $2) returning *"
+	FORMS_INSERT_SQL          = "insert into forms (user_id, name, description) values ($1, $2, $3) returning *"
 )
 
 type FormsRepository struct {
@@ -31,7 +31,7 @@ func (repo *FormsRepository) FindByUserId(userId int) []Form {
 
 	for rows.Next() {
 		form := new(Form)
-		err := rows.Scan(&form.id, &form.userId, &form.name, &form.createdAt, &form.updatedAt)
+		err := rows.Scan(&form.id, &form.userId, &form.name, &form.description, &form.createdAt, &form.updatedAt)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -41,30 +41,19 @@ func (repo *FormsRepository) FindByUserId(userId int) []Form {
 	return forms
 }
 
-func (repo *FormsRepository) Create(userId int, name string) (*Form, error) {
+func (repo *FormsRepository) Create(userId int, name, description string) (*Form, error) {
 	form := new(Form)
-
-	err := repo.db.QueryRow(FORMS_INSERT_SQL, userId, name).Scan(&form.id, &form.userId, &form.name, &form.createdAt, &form.updatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	return form, nil
+	err := repo.db.QueryRow(FORMS_INSERT_SQL, userId, name, description).
+		Scan(&form.id, &form.userId, &form.name, &form.description, &form.createdAt, &form.updatedAt)
+	return form, err
 }
 
-func (repo *FormsRepository) FindById(id int) *Form {
+func (repo *FormsRepository) FindById(id int) (*Form, error) {
 	form := new(Form)
-
-	err := repo.db.QueryRow(FORMS_FIND_BY_ID_SQL, id).Scan(&form.id, &form.userId, &form.name, &form.createdAt, &form.updatedAt)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// there were no rows, but otherwise no error occurred
-			return nil
-		} else {
-			log.Fatal(err)
-		}
+	err := repo.db.QueryRow(FORMS_FIND_BY_ID_SQL, id).
+		Scan(&form.id, &form.userId, &form.name, &form.description, &form.createdAt, &form.updatedAt)
+	if err != nil && err == sql.ErrNoRows {
+		return nil, err
 	}
-
-	return form
+	return form, err
 }

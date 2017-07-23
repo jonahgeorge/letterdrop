@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 )
 
 const (
@@ -21,48 +20,29 @@ func NewUsersRepository(db *sql.DB) *UsersRepository {
 	}
 }
 
-func (repo *UsersRepository) FindById(id int) *User {
+func (repo *UsersRepository) FindById(id int) (*User, error) {
 	user := new(User)
-
-	err := repo.db.QueryRow(USERS_FIND_BY_ID_SQL, id).Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// there were no rows, but otherwise no error occurred
-			return nil
-		} else {
-			log.Fatal(err)
-		}
+	err := repo.db.QueryRow(USERS_FIND_BY_ID_SQL, id).
+		Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
+	if err != nil && err == sql.ErrNoRows {
+		return nil, nil
 	}
-
-	return user
+	return user, err
 }
 
-func (repo *UsersRepository) FindByEmailAndPassword(email, password string) *User {
+func (repo *UsersRepository) FindByEmailAndPassword(email, password string) (*User, error) {
 	user := new(User)
-
 	err := repo.db.QueryRow(USERS_FIND_BY_EMAIL_AND_PASSWORD_SQL, email, password).
 		Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// there were no rows, but otherwise no error occurred
-			return nil
-		} else {
-			log.Fatal(err)
-		}
+	if err != nil && err == sql.ErrNoRows {
+		return nil, nil
 	}
-
-	return user
+	return user, err
 }
 
 func (repo *UsersRepository) Create(email, password string) (*User, error) {
 	user := new(User)
-
-	err := repo.db.QueryRow(USERS_INSERT_SQL, email, password).Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	err := repo.db.QueryRow(USERS_INSERT_SQL, email, password).
+		Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
+	return user, err
 }

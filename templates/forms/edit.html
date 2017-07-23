@@ -1,9 +1,9 @@
 {% extends "../layouts/public.html" %}
 
 {% block content %}
-<h1>New Form</h1>
+<h1>Edit Form</h1>
 
-<form action="/forms" method="post">
+<form action="/forms/{{ form.id }}" method="post">
   <div class="form-group">
     <label for="name">Name</label>
     <input id="name" name="name" type="text" class="form-control" value="{{ form.name }}" required />
@@ -18,5 +18,4 @@
     <input type="submit" class="btn btn-primary">
   </div>
 </form>
-
 {% endblock %}
