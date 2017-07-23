@@ -4,10 +4,10 @@ import (
 	"time"
 )
 
-type Form struct {
+type Submission struct {
 	id        int
-	userId    int
-	name      string
+	formId    int
+	body      string
 	createdAt time.Time
 	updatedAt time.Time
 }

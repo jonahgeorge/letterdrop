@@ -1,13 +1,13 @@
 package main
 
 import (
-  "time"
+	"time"
 )
 
 type User struct {
-  id int
-  email string
-  passwordDigest string
-  createdAt time.Time
-  updatedAt time.Time
+	id             int
+	email          string
+	passwordDigest string
+	createdAt      time.Time
+	updatedAt      time.Time
 }

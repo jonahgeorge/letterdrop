@@ -1,5 +1,26 @@
 {% extends "../layouts/public.html" %}
 
 {% block content %}
-<h1>Forms#show</h1>
+<h1>{{ form.name }}</h1>
+<p>{{ form.description }}</p>
+
+<h4>Submissions</h4>
+<table class='table'>
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Body</th>
+      <th>Created At</th>
+      <th>Updated At</th>
+    </tr>
+  </thead>
+  {% for submission in submissions %}
+  <tr>
+    <td>{{ submission.id }}</td>
+    <td>{{ submission.body }}</td>
+    <td>{{ submission.created_at }}</td>
+    <td>{{ submission.updated_at }}</td>
+  </tr>
+  {% endfor %}
+</table>
 {% endblock %}

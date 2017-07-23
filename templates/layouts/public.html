@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <title>Letterbox</title>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -20,9 +22,11 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
+          {% if currentUser %}
           <li class="nav-item">
             <a class="nav-link" href="/forms">Forms</a>
           </li>
+          {% endif %}
         </ul>
 
         <ul class="navbar-nav ml-auto">
@@ -43,6 +47,10 @@
     </nav>
 
     <div class="container">
+      {% for f in flashes %}
+        <div class="alert alert-info">{{ f }}</div>
+      {% endfor %}
+
       {% block content %}
       {% endblock %}
     </div>
