@@ -19,19 +19,19 @@ type Application struct {
 func NewApplication() *Application {
 	db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	sessions := sessions.NewCookieStore([]byte(os.Getenv("SECRET_TOKEN")))
-	// emailClient := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	emailClient := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
 
 	return &Application{
-		db:       db,
-		sessions: sessions,
-		// emailClient: emailClient,
+		db:          db,
+		sessions:    sessions,
+		emailClient: emailClient,
 	}
 }
 
 func (app *Application) Render(w http.ResponseWriter, r *http.Request, name string, data pongo2.Context) error {
 	t, _ := pongo2.FromFile("templates/" + name + ".html")
 
-	session, _ := app.sessions.Get(r, "letterbox")
+	session, _ := app.GetSession(r)
 
 	if session.Values["userId"] != nil {
 		user, _ := NewUsersRepository(app.db).FindById(session.Values["userId"].(int))

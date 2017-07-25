@@ -10,6 +10,8 @@ func (app *Application) UsersNewHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := app.GetSession(r)
+
 	_, err := NewUsersRepository(app.db).Create(
 		r.PostFormValue("email"), r.PostFormValue("password"))
 	if err != nil {
