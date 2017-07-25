@@ -5,8 +5,15 @@ import (
 )
 
 const (
-	SUBMISSIONS_INSERT_SQL          = "insert into submissions (form_id, body) values ($1, $2) returning *"
-	SUBMISSIONS_FIND_BY_FORM_ID_SQL = "select * from submissions where form_id = $1"
+	SUBMISSIONS_INSERT_SQL = `
+	insert into submissions (form_id, body) 
+	values ($1, $2) 
+	returning *`
+
+	SUBMISSIONS_FIND_BY_FORM_ID_SQL = `
+	select * 
+	from submissions 
+	where form_id = $1`
 )
 
 type SubmissionsRepository struct {

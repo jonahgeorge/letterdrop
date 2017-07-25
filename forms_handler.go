@@ -34,11 +34,11 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 			"name": r.PostFormValue("name"),
 			// TODO Inject form instead
 		})
-	} else {
-		session.AddFlash("Successfully created form!")
-		session.Save(r, w)
-		http.Redirect(w, r, "/forms", 302)
 	}
+
+	session.AddFlash("Successfully created form!")
+	session.Save(r, w)
+	http.Redirect(w, r, "/forms", 302)
 }
 
 func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request) {

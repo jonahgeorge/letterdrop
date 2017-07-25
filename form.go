@@ -7,6 +7,7 @@ import (
 type Form struct {
 	id          int
 	userId      int
+	uuid        string
 	name        string
 	description string
 	createdAt   time.Time

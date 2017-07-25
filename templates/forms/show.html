@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>{{ form.name }}</h1>
+<small>{{ form.uuid }}</small>
 <p>{{ form.description }}</p>
 
 <a href="/forms/{{ form.id }}/edit" class="btn btn-primary">Edit Form</a>
