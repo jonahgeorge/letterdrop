@@ -26,7 +26,7 @@ func main() {
 	router.HandleFunc("/forms/{id:[0-9]+}/edit", app.FormsEditHandler).Methods("GET")
 	router.HandleFunc("/forms/{id:[0-9]+}", app.FormsUpdateHandler).Methods("POST")
 
-	router.HandleFunc("/f/{id}", app.SubmissionsCreateHandler).Methods("POST")
+	router.HandleFunc("/f/{uuid}", app.SubmissionsCreateHandler).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }
