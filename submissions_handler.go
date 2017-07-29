@@ -59,9 +59,9 @@ Plaintext New Form Submission
 	html, _ := htmlContent.Execute(c)
 
 	message := mail.NewSingleEmail(
-		mail.NewEmail("Letterbox Team", "letterbox@jonahgeorge.com"),
+		mail.NewEmail("Letterdrop Team", "letterdrop@jonahgeorge.com"),
 		"New Form Submission",
-		mail.NewEmail("Letterbox User", user.email), // TODO Pull in actual name
+		mail.NewEmail("Letterdrop User", user.email), // TODO Pull in actual name
 		plainText,
 		html,
 	)

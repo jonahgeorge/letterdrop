@@ -45,5 +45,5 @@ func (app *Application) Render(w http.ResponseWriter, r *http.Request, name stri
 }
 
 func (app *Application) GetSession(r *http.Request) (*sessions.Session, error) {
-	return app.sessions.Get(r, "letterbox")
+	return app.sessions.Get(r, "letterdrop")
 }

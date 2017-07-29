@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-func (app *Application) FormsIndexHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := app.sessions.Get(r, "letterbox")
+func (app *Application) FormsIndexHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
+	session, _ := app.GetSession(r)
 	id := session.Values["userId"]
 
 	forms := NewFormsRepository(app.db).FindByUserId(id.(int))
@@ -18,15 +18,14 @@ func (app *Application) FormsIndexHandler(w http.ResponseWriter, r *http.Request
 	})
 }
 
-func (app *Application) FormsNewHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) FormsNewHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
 	app.Render(w, r, "forms/new", pongo2.Context{})
 }
 
-func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := app.sessions.Get(r, "letterbox")
-	id := session.Values["userId"]
+func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
+	session, _ := app.GetSession(r)
 
-	_, err := NewFormsRepository(app.db).Create(id.(int), r.PostFormValue("name"), r.PostFormValue("description"))
+	_, err := NewFormsRepository(app.db).Create(currentUser.id, r.PostFormValue("name"), r.PostFormValue("description"))
 	if err != nil {
 		session.AddFlash("An error occured while creating your form")
 		session.Save(r, w)
@@ -41,7 +40,7 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/forms", 302)
 }
 
-func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 
@@ -54,7 +53,7 @@ func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (app *Application) FormsEditHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) FormsEditHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 
@@ -64,7 +63,7 @@ func (app *Application) FormsEditHandler(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 

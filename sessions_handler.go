@@ -13,12 +13,13 @@ func (app *Application) SessionsCreateHandler(w http.ResponseWriter, r *http.Req
 	session, _ := app.GetSession(r)
 
 	user, _ := NewUsersRepository(app.db).FindByEmailAndPassword(r.PostFormValue("email"), r.PostFormValue("password"))
-	if user != nil {
+	if user == nil {
 		session.AddFlash("Either your email or password was invalid.")
 		session.Save(r, w)
 		app.Render(w, r, "sessions/new", pongo2.Context{
 			"email": r.PostFormValue("email"),
 		})
+		return
 	}
 
 	session.Values["userId"] = user.id

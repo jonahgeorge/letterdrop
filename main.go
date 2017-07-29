@@ -9,24 +9,39 @@ import (
 func main() {
 	app := NewApplication()
 
-	router := mux.NewRouter()
-	router.HandleFunc("/", app.IndexHandler).Methods("GET")
+	r := mux.NewRouter()
+	r.HandleFunc("/", app.IndexHandler).Methods("GET")
+	r.HandleFunc("/login", app.SessionsNewHandler).Methods("GET")
+	r.HandleFunc("/login", app.SessionsCreateHandler).Methods("POST")
+	r.HandleFunc("/logout", app.SessionsDestroyHandler).Methods("GET")
+	r.HandleFunc("/signup", app.UsersNewHandler).Methods("GET")
+	r.HandleFunc("/signup", app.UsersCreateHandler).Methods("POST")
+	r.HandleFunc("/f/{uuid}", app.SubmissionsCreateHandler).Methods("POST")
 
-	router.HandleFunc("/login", app.SessionsNewHandler).Methods("GET")
-	router.HandleFunc("/login", app.SessionsCreateHandler).Methods("POST")
-	router.HandleFunc("/logout", app.SessionsDestroyHandler).Methods("GET")
+	r.HandleFunc("/forms", app.RequireAuthentication(app.FormsIndexHandler)).Methods("GET")
+	r.HandleFunc("/forms/new", app.RequireAuthentication(app.FormsNewHandler)).Methods("GET")
+	r.HandleFunc("/forms", app.RequireAuthentication(app.FormsCreateHandler)).Methods("POST")
+	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsShowHandler)).Methods("GET")
+	r.HandleFunc("/forms/{id:[0-9]+}/edit", app.RequireAuthentication(app.FormsEditHandler)).Methods("GET")
+	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsUpdateHandler)).Methods("POST")
 
-	router.HandleFunc("/signup", app.UsersNewHandler).Methods("GET")
-	router.HandleFunc("/signup", app.UsersCreateHandler).Methods("POST")
+	log.Fatal(http.ListenAndServe(":5000", r))
+}
 
-	router.HandleFunc("/forms", app.FormsIndexHandler).Methods("GET")
-	router.HandleFunc("/forms/new", app.FormsNewHandler).Methods("GET")
-	router.HandleFunc("/forms", app.FormsCreateHandler).Methods("POST")
-	router.HandleFunc("/forms/{id:[0-9]+}", app.FormsShowHandler).Methods("GET")
-	router.HandleFunc("/forms/{id:[0-9]+}/edit", app.FormsEditHandler).Methods("GET")
-	router.HandleFunc("/forms/{id:[0-9]+}", app.FormsUpdateHandler).Methods("POST")
+type AuthenticatedHandlerFunc func(http.ResponseWriter, *http.Request, *User)
 
-	router.HandleFunc("/f/{uuid}", app.SubmissionsCreateHandler).Methods("POST")
+func (app *Application) RequireAuthentication(next AuthenticatedHandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session, _ := app.GetSession(r)
+		if session.Values["userId"] == nil {
+			session.AddFlash("You must be logged in!")
+			session.Save(r, w)
+			http.Redirect(w, r, "/login", 307)
+			return
+		}
 
-	log.Fatal(http.ListenAndServe(":5000", router))
+		user, _ := NewUsersRepository(app.db).FindById(session.Values["userId"].(int))
+
+		next(w, r, user)
+	})
 }
