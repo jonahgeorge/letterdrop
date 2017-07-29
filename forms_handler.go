@@ -23,12 +23,15 @@ func (app *Application) FormsNewHandler(w http.ResponseWriter, r *http.Request, 
 func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
 	session, _ := app.GetSession(r)
 
+	recaptchaSecretKey := r.PostFormValue("recaptcha_secret_key")
+
 	form := &Form{
-		name:        r.PostFormValue("name"),
-		description: r.PostFormValue("description"),
+		name:               r.PostFormValue("name"),
+		description:        r.PostFormValue("description"),
+		recaptchaSecretKey: &recaptchaSecretKey,
 	}
 
-	_, err := NewFormsRepository(app.db).Create(currentUser.id, form.name, form.description)
+	_, err := NewFormsRepository(app.db).Create(currentUser.id, form.name, form.description, form.recaptchaSecretKey)
 	if err != nil {
 		session.AddFlash("An error occured while creating your form")
 		session.Save(r, w)
@@ -68,7 +71,14 @@ func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Reques
 	session, _ := app.GetSession(r)
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	form, err := NewFormsRepository(app.db).Update(id, r.PostFormValue("name"), r.PostFormValue("description"))
+	form, err := NewFormsRepository(app.db).FindById(id)
+
+	recaptchaSecretKey := r.PostFormValue("recaptcha_secret_key")
+	form.name = r.PostFormValue("name")
+	form.description = r.PostFormValue("description")
+	form.recaptchaSecretKey = &recaptchaSecretKey
+
+	_, err = NewFormsRepository(app.db).Update(id, form.name, form.description, form.recaptchaSecretKey)
 	if err != nil {
 		session.AddFlash("An error occured while updating this form")
 		session.Save(r, w)

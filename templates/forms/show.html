@@ -1,16 +1,23 @@
 {% extends "../layouts/public.html" %}
 
 {% block content %}
+
 <h1>{{ form.name }}</h1>
-<small>{{ form.uuid }}</small>
 <p>{{ form.description }}</p>
+
+
+<dl>
+  <dt>UUID</dt>
+  <dd>{{ form.uuid }}</dd>
+
+  <dt>ReCaptcha Secret Key</dt>
+  <dd>{{ form.recaptchaSecretKey }}</dd>
+</dl>
 
 <a href="/forms/{{ form.id }}/edit" class="btn btn-primary">Edit Form</a>
 
-<br>
-<br>
-
 <h4>Submissions</h4>
+
 <table class='table'>
   <thead>
     <tr>

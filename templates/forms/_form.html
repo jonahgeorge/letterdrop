@@ -8,4 +8,7 @@
   <textarea id="description" name="description" type="text" class="form-control" rows=5>{{ form.description }}</textarea>
 </div>
 
-
+<div class="form-group">
+  <label for="recaptcha_secret_key">ReCaptcha Secret Key</label>
+  <input id="recaptcha_secret_key" name="recaptcha_secret_key" type="text" class="form-control" value="{{ form.recaptchaSecretKey }}" />
+</div>

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
+	"github.com/haisum/recaptcha"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"net/http"
 )
@@ -30,6 +31,20 @@ func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// Process Recaptcha if enabled
+	if form.recaptchaSecretKey != nil {
+		recaptchaClient := recaptcha.R{
+			Secret: *form.recaptchaSecretKey,
+		}
+
+		ok := recaptchaClient.Verify(*r)
+		if !ok {
+			http.Error(w, "Recaptcha Verification failed", 403)
+			return
+		}
+	}
+
+	r.Form.Del("g-recaptcha-response")
 	json, err := json.MarshalIndent(r.Form, "", " ")
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -43,7 +58,7 @@ func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.
 	}
 
 	err = app.SendNotification(form, json)
-	http.Redirect(w, r, "/", 302)
+	http.Redirect(w, r, r.Referer(), 302)
 }
 
 func (app *Application) SendNotification(form *Form, json []byte) error {
