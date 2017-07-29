@@ -6,25 +6,10 @@ import (
 )
 
 const (
-	FORMS_FIND_BY_ID_SQL = `
-	select * 
-	from forms 
-	where id = $1`
-
-	FORMS_FIND_BY_UUID_SQL = `
-	select * 
-	from forms 
-	where uuid = $1`
-
-	FORMS_FIND_BY_USER_ID_SQL = `
-	select * 
-	from forms 
-	where user_id = $1`
-
-	FORMS_INSERT_SQL = `
-	insert into forms (user_id, name, description) 
-	values ($1, $2, $3) 
-	returning *`
+	FORMS_FIND_BY_ID_SQL      = `select * from forms where id = $1`
+	FORMS_FIND_BY_UUID_SQL    = `select * from forms where uuid = $1`
+	FORMS_FIND_BY_USER_ID_SQL = `select * from forms where user_id = $1`
+	FORMS_INSERT_SQL          = `insert into forms (user_id, name, description) values ($1, $2, $3) returning *`
 )
 
 type FormsRepository struct {
@@ -37,20 +22,13 @@ func NewFormsRepository(db *sql.DB) *FormsRepository {
 	}
 }
 
-func (repo *FormsRepository) FindByUserId(userId int) []Form {
+func (repo *FormsRepository) FindByUserId(userId int) ([]Form, error) {
 	var forms []Form
 
 	rows, err := repo.db.Query(FORMS_FIND_BY_USER_ID_SQL, userId)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	for rows.Next() {
 		form := new(Form)
-		err := rows.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt)
-		if err != nil {
-			log.Fatal(err)
-		}
+		err := repo.scanRows(rows, form)
 		forms = append(forms, *form)
 	}
 
@@ -86,4 +64,8 @@ func (repo *FormsRepository) FindByUuid(uuid string) (*Form, error) {
 
 func (repo *FormsRepository) scanRow(row *sql.Row, form *Form) error {
 	return row.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt)
+}
+
+func (repo *FormsRepository) scanRows(rows *sql.Rows, form *Form) error {
+	return rows.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt)
 }
