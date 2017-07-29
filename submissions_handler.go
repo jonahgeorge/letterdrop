@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -66,6 +65,6 @@ Plaintext New Form Submission
 		html,
 	)
 
-	_, _ := app.emailClient.Send(message)
+	app.emailClient.Send(message)
 	http.Redirect(w, r, "/", 302)
 }
