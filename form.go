@@ -9,7 +9,7 @@ type Form struct {
 	userId             int
 	uuid               string
 	name               string
-	description        string
+	description        *string
 	createdAt          time.Time
 	updatedAt          time.Time
 	recaptchaSecretKey *string

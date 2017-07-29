@@ -24,11 +24,19 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 	session, _ := app.GetSession(r)
 
 	recaptchaSecretKey := r.PostFormValue("recaptcha_secret_key")
+	description := r.PostFormValue("description")
 
-	form := &Form{
-		name:               r.PostFormValue("name"),
-		description:        r.PostFormValue("description"),
-		recaptchaSecretKey: &recaptchaSecretKey,
+	form := new(Form)
+	form.name = r.PostFormValue("name")
+	if len(description) > 0 {
+		form.description = &description
+	} else {
+		form.description = nil
+	}
+	if len(recaptchaSecretKey) > 0 {
+		form.recaptchaSecretKey = &recaptchaSecretKey
+	} else {
+		form.recaptchaSecretKey = nil
 	}
 
 	_, err := NewFormsRepository(app.db).Create(currentUser.id, form.name, form.description, form.recaptchaSecretKey)
@@ -73,10 +81,21 @@ func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Reques
 
 	form, err := NewFormsRepository(app.db).FindById(id)
 
-	recaptchaSecretKey := r.PostFormValue("recaptcha_secret_key")
 	form.name = r.PostFormValue("name")
-	form.description = r.PostFormValue("description")
-	form.recaptchaSecretKey = &recaptchaSecretKey
+	description := r.PostFormValue("description")
+	if len(description) > 0 {
+		form.description = &description
+	} else {
+		form.description = nil
+	}
+
+	recaptchaSecretKey := r.PostFormValue("recaptcha_secret_key")
+	fmt.Println(recaptchaSecretKey)
+	if len(recaptchaSecretKey) > 0 {
+		form.recaptchaSecretKey = &recaptchaSecretKey
+	} else {
+		form.recaptchaSecretKey = nil
+	}
 
 	_, err = NewFormsRepository(app.db).Update(id, form.name, form.description, form.recaptchaSecretKey)
 	if err != nil {

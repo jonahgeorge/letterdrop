@@ -36,9 +36,9 @@ func (repo *FormsRepository) FindByUserId(userId int) ([]Form, error) {
 	return forms, err
 }
 
-func (repo *FormsRepository) Create(userId int, name, description string, recaptchaSecretKey *string) (*Form, error) {
+func (repo *FormsRepository) Create(userId int, name string, description, recaptchaSecretKey *string) (*Form, error) {
 	form := new(Form)
-	row := repo.db.QueryRow(FORMS_INSERT_SQL, userId, name, description, &recaptchaSecretKey)
+	row := repo.db.QueryRow(FORMS_INSERT_SQL, userId, name, description, recaptchaSecretKey)
 	err := repo.scanRow(row, form)
 	return form, err
 }
@@ -63,7 +63,7 @@ func (repo *FormsRepository) FindByUuid(uuid string) (*Form, error) {
 	return form, err
 }
 
-func (repo *FormsRepository) Update(id int, name, description string, recaptchaSecretKey *string) (*Form, error) {
+func (repo *FormsRepository) Update(id int, name string, description, recaptchaSecretKey *string) (*Form, error) {
 	form := new(Form)
 	row := repo.db.QueryRow(FORMS_UPDATE_SQL, id, name, description, recaptchaSecretKey)
 	err := repo.scanRow(row, form)
