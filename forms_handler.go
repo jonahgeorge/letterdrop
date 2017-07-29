@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -8,10 +9,7 @@ import (
 )
 
 func (app *Application) FormsIndexHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
-	session, _ := app.GetSession(r)
-	id := session.Values["userId"]
-
-	forms, _ := NewFormsRepository(app.db).FindByUserId(id.(int))
+	forms, _ := NewFormsRepository(app.db).FindByUserId(currentUser.id)
 
 	app.Render(w, r, "forms/index", pongo2.Context{
 		"forms": forms,
@@ -25,13 +23,17 @@ func (app *Application) FormsNewHandler(w http.ResponseWriter, r *http.Request, 
 func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
 	session, _ := app.GetSession(r)
 
-	_, err := NewFormsRepository(app.db).Create(currentUser.id, r.PostFormValue("name"), r.PostFormValue("description"))
+	form := &Form{
+		name:        r.PostFormValue("name"),
+		description: r.PostFormValue("description"),
+	}
+
+	_, err := NewFormsRepository(app.db).Create(currentUser.id, form.name, form.description)
 	if err != nil {
 		session.AddFlash("An error occured while creating your form")
 		session.Save(r, w)
 		app.Render(w, r, "forms/new", pongo2.Context{
-			"name": r.PostFormValue("name"),
-			// TODO Inject form instead
+			"form": form,
 		})
 		return
 	}
@@ -42,8 +44,7 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
-	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["id"])
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	form, _ := NewFormsRepository(app.db).FindById(id)
 	submissions, _ := NewSubmissionsRepository(app.db).FindByFormId(form.id)
@@ -55,8 +56,7 @@ func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request,
 }
 
 func (app *Application) FormsEditHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
-	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["id"])
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	form, _ := NewFormsRepository(app.db).FindById(id)
 	app.Render(w, r, "forms/edit", pongo2.Context{
@@ -65,19 +65,40 @@ func (app *Application) FormsEditHandler(w http.ResponseWriter, r *http.Request,
 }
 
 func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
-	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["id"])
+	session, _ := app.GetSession(r)
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	form, err := NewFormsRepository(app.db).FindById(id)
-
-	// TODO Fix this
-
+	form, err := NewFormsRepository(app.db).Update(id, r.PostFormValue("name"), r.PostFormValue("description"))
 	if err != nil {
+		session.AddFlash("An error occured while updating this form")
+		session.Save(r, w)
 		app.Render(w, r, "forms/edit", pongo2.Context{
 			"form": form,
 		})
 		return
 	}
 
-	http.Redirect(w, r, "/forms/"+string(form.id), 302)
+	session.AddFlash("Successfully updated form!")
+	session.Save(r, w)
+	http.Redirect(w, r, fmt.Sprintf("/forms/%d", form.id), 302)
+}
+
+func (app *Application) FormsDestroyHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
+	session, _ := app.GetSession(r)
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	form, _ := NewFormsRepository(app.db).FindById(id)
+	_, err := NewFormsRepository(app.db).Delete(form.id)
+	if err != nil {
+		session.AddFlash("An error occured while deleting this form")
+		session.Save(r, w)
+		app.Render(w, r, "forms/edit", pongo2.Context{
+			"form": form,
+		})
+		return
+	}
+
+	session.AddFlash("Successfully deleted form!")
+	session.Save(r, w)
+	http.Redirect(w, r, "/forms", 302)
 }

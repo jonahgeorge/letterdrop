@@ -66,10 +66,6 @@ Plaintext New Form Submission
 		html,
 	)
 
-	response, _ := app.emailClient.Send(message)
-	fmt.Println(response.StatusCode)
-	fmt.Println(response.Body)
-	fmt.Println(response.Headers)
-
+	_, _ := app.emailClient.Send(message)
 	http.Redirect(w, r, "/", 302)
 }

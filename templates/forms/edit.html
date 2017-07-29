@@ -7,7 +7,11 @@
   {% include "_form.html" %}
 
   <div class="form-group">
-    <input type="submit" class="btn btn-primary">
+    <input type="submit" class="btn btn-primary" value="Update Form">
   </div>
 </form>
+
+<a class="btn btn-danger" href="/forms/{{ form.id }}" 
+   data-confirm="Are you sure you want to delete this form and all of its submissions?" 
+   data-method="DELETE" rel="nofollow">Delete Form</a>
 {% endblock %}

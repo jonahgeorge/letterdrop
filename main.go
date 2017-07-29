@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -19,12 +20,13 @@ func main() {
 	r.HandleFunc("/signup", app.UsersCreateHandler).Methods("POST")
 	r.HandleFunc("/f/{uuid}", app.SubmissionsCreateHandler).Methods("POST")
 
-	r.HandleFunc("/forms", app.RequireAuthentication(app.FormsIndexHandler)).Methods("GET")
-	r.HandleFunc("/forms/new", app.RequireAuthentication(app.FormsNewHandler)).Methods("GET")
-	r.HandleFunc("/forms", app.RequireAuthentication(app.FormsCreateHandler)).Methods("POST")
-	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsShowHandler)).Methods("GET")
 	r.HandleFunc("/forms/{id:[0-9]+}/edit", app.RequireAuthentication(app.FormsEditHandler)).Methods("GET")
+	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsShowHandler)).Methods("GET")
+	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsDestroyHandler)).Methods("DELETE")
 	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsUpdateHandler)).Methods("POST")
+	r.HandleFunc("/forms/new", app.RequireAuthentication(app.FormsNewHandler)).Methods("GET")
+	r.HandleFunc("/forms", app.RequireAuthentication(app.FormsIndexHandler)).Methods("GET")
+	r.HandleFunc("/forms", app.RequireAuthentication(app.FormsCreateHandler)).Methods("POST")
 
 	port, ok := os.LookupEnv("PORT")
 	if !ok {
@@ -32,7 +34,8 @@ func main() {
 	}
 
 	log.Println("Listening on " + port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	log.Fatal(http.ListenAndServe(":"+port,
+		handlers.HTTPMethodOverrideHandler(handlers.LoggingHandler(os.Stdout, r))))
 }
 
 type AuthenticatedHandlerFunc func(http.ResponseWriter, *http.Request, *User)

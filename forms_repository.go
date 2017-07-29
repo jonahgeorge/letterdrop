@@ -9,6 +9,8 @@ const (
 	FORMS_FIND_BY_UUID_SQL    = `select * from forms where uuid = $1`
 	FORMS_FIND_BY_USER_ID_SQL = `select * from forms where user_id = $1`
 	FORMS_INSERT_SQL          = `insert into forms (user_id, name, description) values ($1, $2, $3) returning *`
+	FORMS_UPDATE_SQL          = `update forms set name = $2, description = $3 where id = $1 returning *`
+	FORMS_DELETE_SQL          = `delete from forms where id = $1`
 )
 
 type FormsRepository struct {
@@ -59,6 +61,20 @@ func (repo *FormsRepository) FindByUuid(uuid string) (*Form, error) {
 		return nil, nil
 	}
 	return form, err
+}
+
+func (repo *FormsRepository) Update(id int, name, description string) (*Form, error) {
+	form := new(Form)
+	row := repo.db.QueryRow(FORMS_UPDATE_SQL, id, name, description)
+	err := repo.scanRow(row, form)
+	if err != nil && err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return form, err
+}
+
+func (repo *FormsRepository) Delete(id int) (sql.Result, error) {
+	return repo.db.Exec(FORMS_DELETE_SQL, id)
 }
 
 func (repo *FormsRepository) scanRow(row *sql.Row, form *Form) error {
