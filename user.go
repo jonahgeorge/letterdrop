@@ -6,6 +6,7 @@ import (
 
 type User struct {
 	id             int
+	name           string
 	email          string
 	passwordDigest string
 	createdAt      time.Time

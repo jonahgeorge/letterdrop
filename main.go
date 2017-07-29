@@ -32,15 +32,15 @@ type AuthenticatedHandlerFunc func(http.ResponseWriter, *http.Request, *User)
 
 func (app *Application) RequireAuthentication(next AuthenticatedHandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, _ := app.GetSession(r)
-		if session.Values["userId"] == nil {
+		var user *User
+		session, err := app.GetSession(r)
+		user, err = NewUsersRepository(app.db).FindById(session.Values["userId"].(int))
+		if user == nil || err != nil {
 			session.AddFlash("You must be logged in!")
 			session.Save(r, w)
 			http.Redirect(w, r, "/login", 307)
 			return
 		}
-
-		user, _ := NewUsersRepository(app.db).FindById(session.Values["userId"].(int))
 
 		next(w, r, user)
 	})

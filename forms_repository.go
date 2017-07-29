@@ -7,24 +7,24 @@ import (
 
 const (
 	FORMS_FIND_BY_ID_SQL = `
-	select id, user_id, uuid, name, description, created_at, updated_at 
+	select * 
 	from forms 
 	where id = $1`
 
 	FORMS_FIND_BY_UUID_SQL = `
-	select id, user_id, uuid, name, description, created_at, updated_at 
+	select * 
 	from forms 
 	where uuid = $1`
 
 	FORMS_FIND_BY_USER_ID_SQL = `
-	select id, user_id, uuid, name, description, created_at, updated_at 
+	select * 
 	from forms 
 	where user_id = $1`
 
 	FORMS_INSERT_SQL = `
 	insert into forms (user_id, name, description) 
 	values ($1, $2, $3) 
-	returning id, user_id, name, description, created_at, updated_at`
+	returning *`
 )
 
 type FormsRepository struct {
@@ -59,27 +59,31 @@ func (repo *FormsRepository) FindByUserId(userId int) []Form {
 
 func (repo *FormsRepository) Create(userId int, name, description string) (*Form, error) {
 	form := new(Form)
-	err := repo.db.QueryRow(FORMS_INSERT_SQL, userId, name, description).
-		Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt)
+	row := repo.db.QueryRow(FORMS_INSERT_SQL, userId, name, description)
+	err := repo.scanRow(row, form)
 	return form, err
 }
 
 func (repo *FormsRepository) FindById(id int) (*Form, error) {
 	form := new(Form)
-	err := repo.db.QueryRow(FORMS_FIND_BY_ID_SQL, id).
-		Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt)
+	row := repo.db.QueryRow(FORMS_FIND_BY_ID_SQL, id)
+	err := repo.scanRow(row, form)
 	if err != nil && err == sql.ErrNoRows {
-		return nil, err
+		return nil, nil
 	}
 	return form, err
 }
 
 func (repo *FormsRepository) FindByUuid(uuid string) (*Form, error) {
 	form := new(Form)
-	err := repo.db.QueryRow(FORMS_FIND_BY_UUID_SQL, uuid).
-		Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt)
+	row := repo.db.QueryRow(FORMS_FIND_BY_UUID_SQL, uuid)
+	err := repo.scanRow(row, form)
 	if err != nil && err == sql.ErrNoRows {
-		return nil, err
+		return nil, nil
 	}
 	return form, err
+}
+
+func (repo *FormsRepository) scanRow(row *sql.Row, form *Form) error {
+	return row.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt)
 }

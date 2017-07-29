@@ -17,8 +17,8 @@ const (
 	and password_digest = crypt($2, password_digest)`
 
 	USERS_INSERT_SQL = `
-	insert into users (email, password_digest) 
-	values (lower($1), crypt($2, gen_salt('bf', 8))) 
+	insert into users (name, email, password_digest) 
+	values ($1, lower($2), crypt($3, gen_salt('bf', 8))) 
 	returning *`
 )
 
@@ -34,8 +34,8 @@ func NewUsersRepository(db *sql.DB) *UsersRepository {
 
 func (repo *UsersRepository) FindById(id int) (*User, error) {
 	user := new(User)
-	err := repo.db.QueryRow(USERS_FIND_BY_ID_SQL, id).
-		Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
+	row := repo.db.QueryRow(USERS_FIND_BY_ID_SQL, id)
+	err := repo.scanRow(row, user)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -44,17 +44,21 @@ func (repo *UsersRepository) FindById(id int) (*User, error) {
 
 func (repo *UsersRepository) FindByEmailAndPassword(email, password string) (*User, error) {
 	user := new(User)
-	err := repo.db.QueryRow(USERS_FIND_BY_EMAIL_AND_PASSWORD_SQL, email, password).
-		Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
+	row := repo.db.QueryRow(USERS_FIND_BY_EMAIL_AND_PASSWORD_SQL, email, password)
+	err := repo.scanRow(row, user)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return user, err
 }
 
-func (repo *UsersRepository) Create(email, password string) (*User, error) {
+func (repo *UsersRepository) Create(name, email, password string) (*User, error) {
 	user := new(User)
-	err := repo.db.QueryRow(USERS_INSERT_SQL, email, password).
-		Scan(&user.id, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
+	row := repo.db.QueryRow(USERS_INSERT_SQL, name, email, password)
+	err := repo.scanRow(row, user)
 	return user, err
+}
+
+func (repo *UsersRepository) scanRow(row *sql.Row, user *User) error {
+	return row.Scan(&user.id, &user.name, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt)
 }

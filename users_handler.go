@@ -13,10 +13,13 @@ func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Reques
 	session, _ := app.GetSession(r)
 
 	_, err := NewUsersRepository(app.db).Create(
-		r.PostFormValue("email"), r.PostFormValue("password"))
+		r.PostFormValue("name"),
+		r.PostFormValue("email"),
+		r.PostFormValue("password"))
 	if err != nil {
 		session.AddFlash("Woah, something bad happened.")
 		app.Render(w, r, "users/new", pongo2.Context{
+			"name":  r.PostFormValue("name"),
 			"email": r.PostFormValue("email"),
 		})
 	}
