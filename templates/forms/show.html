@@ -1,17 +1,17 @@
 {% extends "../layouts/public.html" %}
 
 {% block content %}
-
 <h1>{{ form.name }}</h1>
 <p>{{ form.description }}</p>
-
 
 <dl>
   <dt>UUID</dt>
   <dd>{{ form.uuid }}</dd>
 
-  <dt>ReCaptcha Secret Key</dt>
-  <dd>{{ form.recaptchaSecretKey }}</dd>
+  {% if form.recaptchaSecretKey %}
+    <dt>ReCaptcha Secret Key</dt>
+    <dd>{{ form.recaptchaSecretKey }}</dd>
+  {% endif %}
 </dl>
 
 <a href="/forms/{{ form.id }}/edit" class="btn btn-primary">Edit Form</a>
@@ -23,12 +23,16 @@
     <tr>
       <th>Id</th>
       <th>Body</th>
+      <th></th>
     </tr>
   </thead>
   {% for submission in submissions %}
   <tr>
     <td>{{ submission.id }}</td>
     <td>{{ submission.body }}</td>
+    <td>
+      <a class="btn btn-danger" href="/forms/{{ form.id }}/submissions/{{ submission.id }}" data-method="DELETE" rel="nofollow">Delete</a>
+    </td>
   </tr>
   {% endfor %}
 </table>

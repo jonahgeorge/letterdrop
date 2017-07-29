@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	SUBMISSIONS_INSERT_SQL          = `insert into submissions (form_id, body) values ($1, $2) returning *`
 	SUBMISSIONS_FIND_BY_FORM_ID_SQL = `select * from submissions where form_id = $1`
+	SUBMISSIONS_INSERT_SQL          = `insert into submissions (form_id, body) values ($1, $2) returning *`
+	SUBMISSIONS_DELETE_SQL          = `delete from submissions where id = $1`
 )
 
 type SubmissionsRepository struct {
@@ -37,6 +38,10 @@ func (repo *SubmissionsRepository) Create(formId int, body string) (*Submission,
 	row := repo.db.QueryRow(SUBMISSIONS_INSERT_SQL, formId, body)
 	err := repo.scanRow(row, submission)
 	return submission, err
+}
+
+func (repo *SubmissionsRepository) Delete(id int) (sql.Result, error) {
+	return repo.db.Exec(SUBMISSIONS_DELETE_SQL, id)
 }
 
 func (repo *SubmissionsRepository) scanRow(row *sql.Row, submission *Submission) error {

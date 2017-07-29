@@ -20,6 +20,7 @@ func main() {
 	r.HandleFunc("/signup", app.UsersCreateHandler).Methods("POST")
 	r.HandleFunc("/f/{uuid}", app.SubmissionsCreateHandler).Methods("POST")
 
+	r.HandleFunc("/forms/{formId:[0-9]+}/submissions/{submissionId:[0-9]+}", app.RequireAuthentication(app.SubmissionsDestroyHandler)).Methods("DELETE")
 	r.HandleFunc("/forms/{id:[0-9]+}/edit", app.RequireAuthentication(app.FormsEditHandler)).Methods("GET")
 	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsShowHandler)).Methods("GET")
 	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsDestroyHandler)).Methods("DELETE")
