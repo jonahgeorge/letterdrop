@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -25,7 +26,13 @@ func main() {
 	r.HandleFunc("/forms/{id:[0-9]+}/edit", app.RequireAuthentication(app.FormsEditHandler)).Methods("GET")
 	r.HandleFunc("/forms/{id:[0-9]+}", app.RequireAuthentication(app.FormsUpdateHandler)).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":5000", r))
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		port = "3000"
+	}
+
+	log.Println("Listening on " + port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 type AuthenticatedHandlerFunc func(http.ResponseWriter, *http.Request, *User)
