@@ -2,5 +2,14 @@
 
 set -e
 
+# Put site in maintenance mode
+heroku maintenance:on
+
+# Build and push new image
 heroku container:push web
+
+# Run pending database migrations
 heroku run 'migrate -path migrations -database $DATABASE_URL up'
+
+# Take site out of maintenance mode
+heroku maintenance:off
