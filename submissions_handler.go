@@ -8,6 +8,18 @@ import (
 	"net/http"
 )
 
+const (
+	plainTextTemplate = `
+Plaintext New Form Submission
+
+{{ json }}`
+
+	htmlTemplate = `
+<h1>New Form Submission</h1> 
+<br>
+<pre>{{ json }}</pre>`
+)
+
 func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.Request) {
 	uuid := mux.Vars(r)["uuid"]
 	r.ParseForm()
@@ -30,32 +42,22 @@ func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO Send email
+	err = app.SendNotification(form, json)
+	http.Redirect(w, r, "/", 302)
+}
+
+func (app *Application) SendNotification(form *Form, json []byte) error {
 	user, _ := NewUsersRepository(app.db).FindById(form.userId)
-
-	plainTextTemplate := `
-Plaintext New Form Submission
-
-{{ json }}
-	`
-
-	htmlTemplate := `
-<h1>New Form Submission</h1> 
-
-<br>
-
-<pre>{{ json }}</pre>
-	`
 
 	c := pongo2.Context{
 		"json": string(json),
 	}
 
 	htmlContent, _ := pongo2.FromString(htmlTemplate)
-	plainTextContent, _ := pongo2.FromString(plainTextTemplate)
-
-	plainText, _ := plainTextContent.Execute(c)
 	html, _ := htmlContent.Execute(c)
+
+	plainTextContent, _ := pongo2.FromString(plainTextTemplate)
+	plainText, _ := plainTextContent.Execute(c)
 
 	message := mail.NewSingleEmail(
 		mail.NewEmail("Letterdrop Team", "team@letterdrop.herokuapp.com"),
@@ -65,6 +67,6 @@ Plaintext New Form Submission
 		html,
 	)
 
-	app.emailClient.Send(message)
-	http.Redirect(w, r, "/", 302)
+	_, err := app.emailClient.Send(message)
+	return err
 }
