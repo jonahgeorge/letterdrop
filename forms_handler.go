@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -12,7 +11,7 @@ func (app *Application) FormsIndexHandler(w http.ResponseWriter, r *http.Request
 	session, _ := app.GetSession(r)
 	id := session.Values["userId"]
 
-	forms := NewFormsRepository(app.db).FindByUserId(id.(int))
+	forms, _ := NewFormsRepository(app.db).FindByUserId(id.(int))
 
 	app.Render(w, r, "forms/index", pongo2.Context{
 		"forms": forms,
@@ -28,7 +27,6 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 
 	_, err := NewFormsRepository(app.db).Create(currentUser.id, r.PostFormValue("name"), r.PostFormValue("description"))
 	if err != nil {
-		log.Fatal(err)
 		session.AddFlash("An error occured while creating your form")
 		session.Save(r, w)
 		app.Render(w, r, "forms/new", pongo2.Context{

@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 )
 
 const (
@@ -28,11 +27,11 @@ func (repo *FormsRepository) FindByUserId(userId int) ([]Form, error) {
 	rows, err := repo.db.Query(FORMS_FIND_BY_USER_ID_SQL, userId)
 	for rows.Next() {
 		form := new(Form)
-		err := repo.scanRows(rows, form)
+		err = repo.scanRows(rows, form)
 		forms = append(forms, *form)
 	}
 
-	return forms
+	return forms, err
 }
 
 func (repo *FormsRepository) Create(userId int, name, description string) (*Form, error) {
