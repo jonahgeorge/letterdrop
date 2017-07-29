@@ -2,11 +2,17 @@
 
 set -e
 
+# Build image
+docker build -t jonahgeorge/letterdrop .
+
+# Tag image
+docker tag jonahgeorge/letterdrop registry.heroku.com/letterdrop/web
+
 # Put site in maintenance mode
 heroku maintenance:on
 
-# Build and push new image
-heroku container:push web
+# Push image
+docker push registry.heroku.com/letterdrop/web
 
 # Run pending database migrations
 heroku run 'migrate -path migrations -database $DATABASE_URL up'
