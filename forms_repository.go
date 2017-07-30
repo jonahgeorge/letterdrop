@@ -29,7 +29,7 @@ func (repo *FormsRepository) FindByUserId(userId int) ([]Form, error) {
 	rows, err := repo.db.Query(FORMS_FIND_BY_USER_ID_SQL, userId)
 	for rows.Next() {
 		form := new(Form)
-		err = repo.scanRows(rows, form)
+		err = repo.scanRow(rows, form)
 		forms = append(forms, *form)
 	}
 
@@ -77,10 +77,10 @@ func (repo *FormsRepository) Delete(id int) (sql.Result, error) {
 	return repo.db.Exec(FORMS_DELETE_SQL, id)
 }
 
-func (repo *FormsRepository) scanRow(row *sql.Row, form *Form) error {
-	return row.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt, &form.recaptchaSecretKey)
+type Scannable interface {
+	Scan(...interface{}) error
 }
 
-func (repo *FormsRepository) scanRows(rows *sql.Rows, form *Form) error {
-	return rows.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt, &form.recaptchaSecretKey)
+func (repo *FormsRepository) scanRow(row Scannable, form *Form) error {
+	return row.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt, &form.recaptchaSecretKey)
 }

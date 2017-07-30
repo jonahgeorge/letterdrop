@@ -26,7 +26,7 @@ func (repo *SubmissionsRepository) FindByFormId(formId int) ([]Submission, error
 
 	for rows.Next() {
 		submission := new(Submission)
-		err = repo.scanRows(rows, submission)
+		err = repo.scanRow(rows, submission)
 		submissions = append(submissions, *submission)
 	}
 
@@ -44,10 +44,6 @@ func (repo *SubmissionsRepository) Delete(id int) (sql.Result, error) {
 	return repo.db.Exec(SUBMISSIONS_DELETE_SQL, id)
 }
 
-func (repo *SubmissionsRepository) scanRow(row *sql.Row, submission *Submission) error {
+func (repo *SubmissionsRepository) scanRow(row Scannable, submission *Submission) error {
 	return row.Scan(&submission.id, &submission.formId, &submission.body, &submission.createdAt, &submission.updatedAt)
-}
-
-func (repo *SubmissionsRepository) scanRows(rows *sql.Rows, submission *Submission) error {
-	return rows.Scan(&submission.id, &submission.formId, &submission.body, &submission.createdAt, &submission.updatedAt)
 }
