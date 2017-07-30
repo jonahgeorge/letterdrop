@@ -24,6 +24,13 @@ func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Reques
 		emailConfirmationToken: &token,
 	}
 
+	if !app.recaptchaClient.Verify(*r) {
+		session.AddFlash("Invalid ReCaptcha")
+		session.Save(r, w)
+		app.Render(w, r, "users/new", pongo2.Context{"user": newUser})
+		return
+	}
+
 	user, err := NewUsersRepository(app.db).Create(newUser)
 	if err != nil {
 		log.Println(err)
