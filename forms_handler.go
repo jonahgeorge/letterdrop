@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/flosch/pongo2"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"github.com/flosch/pongo2"
+	"github.com/gorilla/mux"
 )
 
 func (app *Application) FormsIndexHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
@@ -55,10 +56,17 @@ func (app *Application) FormsCreateHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
+	session, _ := app.GetSession(r)
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	form, _ := NewFormsRepository(app.db).FindById(id)
 	submissions, _ := NewSubmissionsRepository(app.db).FindByFormId(form.id)
+	if !currentUser.CanView(form) {
+		session.AddFlash("You are not authorized to access this resource.")
+		session.Save(r, w)
+		http.Redirect(w, r, "/forms", 302)
+		return
+	}
 
 	app.Render(w, r, "forms/show", pongo2.Context{
 		"form":        form,
@@ -67,9 +75,17 @@ func (app *Application) FormsShowHandler(w http.ResponseWriter, r *http.Request,
 }
 
 func (app *Application) FormsEditHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
+	session, _ := app.GetSession(r)
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	form, _ := NewFormsRepository(app.db).FindById(id)
+	if !currentUser.CanUpdate(form) {
+		session.AddFlash("You are not authorized to access this resource.")
+		session.Save(r, w)
+		http.Redirect(w, r, "/forms", 302)
+		return
+	}
+
 	app.Render(w, r, "forms/edit", pongo2.Context{
 		"form": form,
 	})
@@ -80,6 +96,12 @@ func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Reques
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	form, err := NewFormsRepository(app.db).FindById(id)
+	if !currentUser.CanUpdate(form) {
+		session.AddFlash("You are not authorized to access this resource.")
+		session.Save(r, w)
+		http.Redirect(w, r, "/forms", 302)
+		return
+	}
 
 	form.name = r.PostFormValue("name")
 	description := r.PostFormValue("description")
@@ -117,6 +139,13 @@ func (app *Application) FormsDestroyHandler(w http.ResponseWriter, r *http.Reque
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	form, _ := NewFormsRepository(app.db).FindById(id)
+	if !currentUser.CanDelete(form) {
+		session.AddFlash("You are not authorized to access this resource.")
+		session.Save(r, w)
+		http.Redirect(w, r, "/forms", 302)
+		return
+	}
+
 	_, err := NewFormsRepository(app.db).Delete(form.id)
 	if err != nil {
 		session.AddFlash("An error occured while deleting this form")
