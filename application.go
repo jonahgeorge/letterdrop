@@ -2,29 +2,37 @@ package main
 
 import (
 	"database/sql"
-	"github.com/flosch/pongo2"
-	"github.com/gorilla/sessions"
-	_ "github.com/lib/pq"
-	"github.com/sendgrid/sendgrid-go"
 	"net/http"
 	"os"
+
+	"github.com/flosch/pongo2"
+	"github.com/gorilla/sessions"
+	"github.com/haisum/recaptcha"
+	_ "github.com/lib/pq"
+	"github.com/sendgrid/sendgrid-go"
 )
 
 type Application struct {
-	db          *sql.DB
-	sessions    *sessions.CookieStore
-	emailClient *sendgrid.Client
+	db              *sql.DB
+	sessions        *sessions.CookieStore
+	emailClient     *sendgrid.Client
+	recaptchaClient recaptcha.R
+	hostName        string
 }
 
 func NewApplication() *Application {
 	db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	sessions := sessions.NewCookieStore([]byte(os.Getenv("SECRET_TOKEN")))
 	emailClient := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	recaptchaClient := recaptcha.R{Secret: os.Getenv("RECAPTCHA_SECRET_TOKEN")}
+	hostName := os.Getenv("HOST")
 
 	return &Application{
-		db:          db,
-		sessions:    sessions,
-		emailClient: emailClient,
+		db:              db,
+		sessions:        sessions,
+		emailClient:     emailClient,
+		recaptchaClient: recaptchaClient,
+		hostName:        hostName,
 	}
 }
 
