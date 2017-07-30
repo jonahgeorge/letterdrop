@@ -1,7 +1,7 @@
-Letterdrop
+LetterDrop
 ===
 
-Letterdrop is an open source alternative to FormKeep that is easy to self-host.
+LetterDrop is an open source alternative to FormKeep that is easy to self-host.
 
 ## Deploying
 

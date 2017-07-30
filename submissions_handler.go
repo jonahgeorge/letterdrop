@@ -3,24 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
 	"github.com/haisum/recaptcha"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
-	"net/http"
-	"strconv"
-)
-
-const (
-	plainTextTemplate = `
-Plaintext New Form Submission
-
-{{ json }}`
-
-	htmlTemplate = `
-<h1>New Form Submission</h1> 
-<br>
-<pre>{{ json }}</pre>`
 )
 
 func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +47,7 @@ func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	err = app.SendNotification(form, json)
+	app.SendSubmissionNotification(form, json)
 	http.Redirect(w, r, r.Referer(), 302)
 }
 
@@ -88,29 +76,4 @@ func (app *Application) SubmissionsDestroyHandler(w http.ResponseWriter, r *http
 	session.AddFlash("Successfully deleted submission!")
 	session.Save(r, w)
 	http.Redirect(w, r, fmt.Sprintf("/forms/%d", form.id), 302)
-}
-
-func (app *Application) SendNotification(form *Form, json []byte) error {
-	user, _ := NewUsersRepository(app.db).FindById(form.userId)
-
-	c := pongo2.Context{
-		"json": string(json),
-	}
-
-	htmlContent, _ := pongo2.FromString(htmlTemplate)
-	html, _ := htmlContent.Execute(c)
-
-	plainTextContent, _ := pongo2.FromString(plainTextTemplate)
-	plainText, _ := plainTextContent.Execute(c)
-
-	message := mail.NewSingleEmail(
-		mail.NewEmail("Letterdrop Team", "team@letterdrop.herokuapp.com"),
-		"New Form Submission",
-		mail.NewEmail(user.name, user.email),
-		plainText,
-		html,
-	)
-
-	_, err := app.emailClient.Send(message)
-	return err
 }
