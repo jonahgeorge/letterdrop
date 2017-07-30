@@ -112,7 +112,6 @@ func (app *Application) FormsUpdateHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	recaptchaSecretKey := r.PostFormValue("recaptcha_secret_key")
-	fmt.Println(recaptchaSecretKey)
 	if len(recaptchaSecretKey) > 0 {
 		form.recaptchaSecretKey = &recaptchaSecretKey
 	} else {
