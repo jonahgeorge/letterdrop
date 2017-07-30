@@ -14,3 +14,19 @@ type Form struct {
 	updatedAt          time.Time
 	recaptchaSecretKey *string
 }
+
+func (f *Form) CanCreate(u *User) bool {
+	return f.userId == u.id
+}
+
+func (f *Form) CanView(u *User) bool {
+	return f.userId == u.id
+}
+
+func (f *Form) CanUpdate(u *User) bool {
+	return f.userId == u.id
+}
+
+func (f *Form) CanDelete(u *User) bool {
+	return f.userId == u.id
+}

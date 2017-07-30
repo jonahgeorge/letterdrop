@@ -59,8 +59,12 @@ func (app *Application) SubmissionsDestroyHandler(w http.ResponseWriter, r *http
 
 	form, _ := NewFormsRepository(app.db).FindById(formId)
 	submissions, _ := NewSubmissionsRepository(app.db).FindByFormId(form.id)
-
-	// TODO Check authorization on form
+	if !currentUser.CanDelete(form) {
+		session.AddFlash("You are not authorized to access this resource.")
+		session.Save(r, w)
+		http.Redirect(w, r, fmt.Sprintf("/forms/%d", form.id), 302)
+		return
+	}
 
 	_, err := NewSubmissionsRepository(app.db).Delete(submissionId)
 	if err != nil {
