@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/flosch/pongo2"
+	"github.com/jonahgeorge/letterdrop/mailers"
 	"github.com/jonahgeorge/letterdrop/models"
 	repo "github.com/jonahgeorge/letterdrop/repositories"
 	"github.com/tuvistavie/securerandom"
@@ -42,7 +43,7 @@ func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	app.SendEmailConfirmation(user)
+	mailers.SendEmailConfirmation(app.emailClient, app.hostName, user)
 
 	session.Values["userId"] = user.Id
 	session.AddFlash(fmt.Sprintf("Welcome, %s!", user.Name))

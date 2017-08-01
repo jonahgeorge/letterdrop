@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/flosch/pongo2"
+	"github.com/jonahgeorge/letterdrop/mailers"
 	repo "github.com/jonahgeorge/letterdrop/repositories"
 	"github.com/tuvistavie/securerandom"
 )
@@ -39,7 +40,7 @@ func (app *Application) EmailConfirmationsCreateHandler(w http.ResponseWriter, r
 		return
 	}
 
-	app.SendEmailConfirmation(user)
+	mailers.SendEmailConfirmation(app.emailClient, app.hostName, user)
 	session.AddFlash("Please check your email for confirmation instructions.")
 	session.Save(r, w)
 	http.Redirect(w, r, "/email_confirmation/new", 302)

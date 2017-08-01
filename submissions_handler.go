@@ -9,6 +9,7 @@ import (
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
 	"github.com/haisum/recaptcha"
+	"github.com/jonahgeorge/letterdrop/mailers"
 	"github.com/jonahgeorge/letterdrop/models"
 	repo "github.com/jonahgeorge/letterdrop/repositories"
 )
@@ -49,7 +50,9 @@ func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.SendSubmissionNotification(form, json)
+	user, _ := repo.NewUsersRepository(app.db).FindById(form.UserId)
+
+	mailers.SendSubmissionNotification(app.emailClient, user, form, json)
 
 	http.Redirect(w, r, r.Referer(), 302)
 }
