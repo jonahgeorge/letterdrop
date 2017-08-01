@@ -21,9 +21,7 @@ type UsersRepository struct {
 }
 
 func NewUsersRepository(db *sql.DB) *UsersRepository {
-	return &UsersRepository{
-		db: db,
-	}
+	return &UsersRepository{db: db}
 }
 
 func (repo *UsersRepository) FindById(id int) (*models.User, error) {
@@ -67,13 +65,15 @@ func (repo *UsersRepository) FindByEmail(email string) (*models.User, error) {
 }
 
 func (repo *UsersRepository) Create(user *models.User) (*models.User, error) {
-	row := repo.db.QueryRow(USERS_INSERT_SQL, user.Name, user.Email, user.PasswordDigest, user.EmailConfirmationToken)
+	row := repo.db.QueryRow(USERS_INSERT_SQL, user.Name, user.Email,
+		user.PasswordDigest, user.EmailConfirmationToken)
 	err := user.FromRow(row)
 	return user, err
 }
 
 func (repo *UsersRepository) Update(user *models.User) (*models.User, error) {
-	row := repo.db.QueryRow(USERS_UPDATE_SQL, user.Id, user.Name, user.Email, user.PasswordDigest, user.EmailConfirmationToken, user.IsEmailConfirmed)
+	row := repo.db.QueryRow(USERS_UPDATE_SQL, user.Id, user.Name, user.Email,
+		user.PasswordDigest, user.EmailConfirmationToken, user.IsEmailConfirmed)
 	err := user.FromRow(row)
 	return user, err
 }

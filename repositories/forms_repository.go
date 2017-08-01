@@ -20,9 +20,7 @@ type FormsRepository struct {
 }
 
 func NewFormsRepository(db *sql.DB) *FormsRepository {
-	return &FormsRepository{
-		db: db,
-	}
+	return &FormsRepository{db: db}
 }
 
 func (repo *FormsRepository) FindByUserId(userId int) ([]models.Form, error) {

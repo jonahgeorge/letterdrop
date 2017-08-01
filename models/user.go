@@ -29,7 +29,7 @@ func (u *User) CanDelete(resource Permissible) bool {
 	return resource.CanDelete(u)
 }
 
-func (user *User) FromRow(row Scannable) error {
-	return row.Scan(&user.Id, &user.Name, &user.Email, &user.PasswordDigest, &user.CreatedAt,
-		&user.UpdatedAt, &user.EmailConfirmationToken, &user.IsEmailConfirmed)
+func (u *User) FromRow(row Scannable) error {
+	return row.Scan(&u.Id, &u.Name, &u.Email, &u.PasswordDigest, &u.CreatedAt,
+		&u.UpdatedAt, &u.EmailConfirmationToken, &u.IsEmailConfirmed)
 }

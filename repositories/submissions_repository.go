@@ -17,9 +17,7 @@ type SubmissionsRepository struct {
 }
 
 func NewSubmissionsRepository(db *sql.DB) *SubmissionsRepository {
-	return &SubmissionsRepository{
-		db: db,
-	}
+	return &SubmissionsRepository{db: db}
 }
 
 func (repo *SubmissionsRepository) FindByFormId(formId int) ([]models.Submission, error) {
