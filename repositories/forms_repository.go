@@ -11,7 +11,7 @@ const (
 	FORMS_FIND_BY_UUID_SQL    = `select * from forms where uuid = $1`
 	FORMS_FIND_BY_USER_ID_SQL = `select * from forms where user_id = $1`
 	FORMS_INSERT_SQL          = `insert into forms (user_id, name, description, recaptcha_secret_key) values ($1, $2, $3, $4) returning *`
-	FORMS_UPDATE_SQL          = `update forms set name = $2, description = $3, recaptcha_secret_key = $4 where id = $1 returning *`
+	FORMS_UPDATE_SQL          = `update forms set name = $2, description = $3, recaptcha_secret_key = $4, updated_at = now() where id = $1 returning *`
 	FORMS_DELETE_SQL          = `delete from forms where id = $1`
 )
 
