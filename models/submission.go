@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Submission struct {
-	id        int
-	formId    int
-	body      string
-	createdAt time.Time
-	updatedAt time.Time
+	Id        int
+	FormId    int
+	Body      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (s *Submission) FromRow(row Scannable) error {
-	return row.Scan(&s.id, &s.formId, &s.body, &s.createdAt, &s.updatedAt)
+	return row.Scan(&s.Id, &s.FormId, &s.Body, &s.CreatedAt, &s.UpdatedAt)
 }
