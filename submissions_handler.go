@@ -9,22 +9,24 @@ import (
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
 	"github.com/haisum/recaptcha"
+	"github.com/jonahgeorge/letterdrop/models"
+	repo "github.com/jonahgeorge/letterdrop/repositories"
 )
 
 func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.Request) {
 	uuid := mux.Vars(r)["uuid"]
 	r.ParseForm()
 
-	form, err := NewFormsRepository(app.db).FindByUuid(uuid)
+	form, err := repo.NewFormsRepository(app.db).FindByUuid(uuid)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	// Process Recaptcha if enabled
-	if form.recaptchaSecretKey != nil {
+	if form.RecaptchaSecretKey != nil {
 		recaptchaClient := recaptcha.R{
-			Secret: *form.recaptchaSecretKey,
+			Secret: *form.RecaptchaSecretKey,
 		}
 
 		ok := recaptchaClient.Verify(*r)
@@ -41,32 +43,33 @@ func (app *Application) SubmissionsCreateHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	_, err = NewSubmissionsRepository(app.db).Create(form.id, string(json))
+	_, err = repo.NewSubmissionsRepository(app.db).Create(form.Id, string(json))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	app.SendSubmissionNotification(form, json)
+
 	http.Redirect(w, r, r.Referer(), 302)
 }
 
-func (app *Application) SubmissionsDestroyHandler(w http.ResponseWriter, r *http.Request, currentUser *User) {
+func (app *Application) SubmissionsDestroyHandler(w http.ResponseWriter, r *http.Request, currentUser *models.User) {
 	session, _ := app.GetSession(r)
 
 	formId, _ := strconv.Atoi(mux.Vars(r)["formId"])
 	submissionId, _ := strconv.Atoi(mux.Vars(r)["submissionId"])
 
-	form, _ := NewFormsRepository(app.db).FindById(formId)
-	submissions, _ := NewSubmissionsRepository(app.db).FindByFormId(form.id)
+	form, _ := repo.NewFormsRepository(app.db).FindById(formId)
+	submissions, _ := repo.NewSubmissionsRepository(app.db).FindByFormId(form.Id)
 	if !currentUser.CanDelete(form) {
 		session.AddFlash("You are not authorized to access this resource.")
 		session.Save(r, w)
-		http.Redirect(w, r, fmt.Sprintf("/forms/%d", form.id), 302)
+		http.Redirect(w, r, fmt.Sprintf("/forms/%d", form.Id), 302)
 		return
 	}
 
-	_, err := NewSubmissionsRepository(app.db).Delete(submissionId)
+	_, err := repo.NewSubmissionsRepository(app.db).Delete(submissionId)
 	if err != nil {
 		session.AddFlash("An error occured while deleting this submission")
 		session.Save(r, w)
@@ -79,5 +82,6 @@ func (app *Application) SubmissionsDestroyHandler(w http.ResponseWriter, r *http
 
 	session.AddFlash("Successfully deleted submission!")
 	session.Save(r, w)
-	http.Redirect(w, r, fmt.Sprintf("/forms/%d", form.id), 302)
+
+	http.Redirect(w, r, fmt.Sprintf("/forms/%d", form.Id), 302)
 }

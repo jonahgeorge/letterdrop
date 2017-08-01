@@ -1,7 +1,9 @@
-package main
+package repositories
 
 import (
 	"database/sql"
+
+	"github.com/jonahgeorge/letterdrop/models"
 )
 
 const (
@@ -20,30 +22,26 @@ func NewSubmissionsRepository(db *sql.DB) *SubmissionsRepository {
 	}
 }
 
-func (repo *SubmissionsRepository) FindByFormId(formId int) ([]Submission, error) {
-	var submissions []Submission
+func (repo *SubmissionsRepository) FindByFormId(formId int) ([]models.Submission, error) {
+	var submissions []models.Submission
 	rows, err := repo.db.Query(SUBMISSIONS_FIND_BY_FORM_ID_SQL, formId)
 
 	for rows.Next() {
-		submission := new(Submission)
-		err = repo.scanRow(rows, submission)
+		submission := new(models.Submission)
+		err = submission.FromRow(rows)
 		submissions = append(submissions, *submission)
 	}
 
 	return submissions, err
 }
 
-func (repo *SubmissionsRepository) Create(formId int, body string) (*Submission, error) {
-	submission := new(Submission)
+func (repo *SubmissionsRepository) Create(formId int, body string) (*models.Submission, error) {
+	submission := new(models.Submission)
 	row := repo.db.QueryRow(SUBMISSIONS_INSERT_SQL, formId, body)
-	err := repo.scanRow(row, submission)
+	err := submission.FromRow(row)
 	return submission, err
 }
 
 func (repo *SubmissionsRepository) Delete(id int) (sql.Result, error) {
 	return repo.db.Exec(SUBMISSIONS_DELETE_SQL, id)
-}
-
-func (repo *SubmissionsRepository) scanRow(row Scannable, submission *Submission) error {
-	return row.Scan(&submission.id, &submission.formId, &submission.body, &submission.createdAt, &submission.updatedAt)
 }

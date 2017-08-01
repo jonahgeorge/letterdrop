@@ -1,20 +1,20 @@
 {% extends "../layouts/public.html" %}
 
 {% block content %}
-<h1>{{ form.name }}</h1>
-<p>{{ form.description }}</p>
+<h1>{{ form.Name }}</h1>
+<p>{{ form.Description }}</p>
 
 <dl>
   <dt>UUID</dt>
-  <dd>{{ form.uuid }}</dd>
+  <dd>{{ form.Uuid }}</dd>
 
-  {% if form.recaptchaSecretKey %}
+  {% if form.RecaptchaSecretKey %}
     <dt>ReCaptcha Secret Key</dt>
-    <dd>{{ form.recaptchaSecretKey }}</dd>
+    <dd>{{ form.RecaptchaSecretKey }}</dd>
   {% endif %}
 </dl>
 
-<a href="/forms/{{ form.id }}/edit" class="btn btn-primary">Edit Form</a>
+<a href="/forms/{{ form.Id }}/edit" class="btn btn-primary">Edit Form</a>
 
 <h4>Submissions</h4>
 
@@ -28,10 +28,10 @@
   </thead>
   {% for submission in submissions %}
   <tr>
-    <td>{{ submission.id }}</td>
-    <td>{{ submission.body }}</td>
+    <td>{{ submission.Id }}</td>
+    <td>{{ submission.Body }}</td>
     <td>
-      <a class="btn btn-danger" href="/forms/{{ form.id }}/submissions/{{ submission.id }}" data-method="DELETE" rel="nofollow">Delete</a>
+      <a class="btn btn-danger" href="/forms/{{ form.Id }}/submissions/{{ submission.Id }}" data-method="DELETE" rel="nofollow">Delete</a>
     </td>
   </tr>
   {% endfor %}

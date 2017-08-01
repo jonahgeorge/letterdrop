@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/flosch/pongo2"
+	"github.com/jonahgeorge/letterdrop/models"
+	repo "github.com/jonahgeorge/letterdrop/repositories"
 	"github.com/tuvistavie/securerandom"
 )
 
@@ -17,11 +19,11 @@ func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Reques
 	session, _ := app.GetSession(r)
 
 	token, _ := securerandom.UrlSafeBase64(10, true)
-	newUser := &User{
-		name:                   r.PostFormValue("name"),
-		email:                  r.PostFormValue("email"),
-		passwordDigest:         r.PostFormValue("password"),
-		emailConfirmationToken: &token,
+	newUser := &models.User{
+		Name:                   r.PostFormValue("name"),
+		Email:                  r.PostFormValue("email"),
+		PasswordDigest:         r.PostFormValue("password"),
+		EmailConfirmationToken: &token,
 	}
 
 	if !app.recaptchaClient.Verify(*r) {
@@ -31,7 +33,7 @@ func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user, err := NewUsersRepository(app.db).Create(newUser)
+	user, err := repo.NewUsersRepository(app.db).Create(newUser)
 	if err != nil {
 		log.Println(err)
 		session.AddFlash("Woah, something bad happened.")
@@ -42,8 +44,9 @@ func (app *Application) UsersCreateHandler(w http.ResponseWriter, r *http.Reques
 
 	app.SendEmailConfirmation(user)
 
-	session.Values["userId"] = user.id
-	session.AddFlash(fmt.Sprintf("Welcome, %s!", user.name))
+	session.Values["userId"] = user.Id
+	session.AddFlash(fmt.Sprintf("Welcome, %s!", user.Name))
 	session.Save(r, w)
+
 	http.Redirect(w, r, "/", 302)
 }

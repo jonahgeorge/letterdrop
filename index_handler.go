@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/flosch/pongo2"
 	"net/http"
+
+	"github.com/flosch/pongo2"
 )
 
 func (app *Application) IndexHandler(w http.ResponseWriter, r *http.Request) {

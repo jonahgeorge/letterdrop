@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/flosch/pongo2"
+	repo "github.com/jonahgeorge/letterdrop/repositories"
 	"github.com/tuvistavie/securerandom"
 )
 
@@ -15,7 +16,7 @@ func (app *Application) EmailConfirmationsNewHandler(w http.ResponseWriter, r *h
 func (app *Application) EmailConfirmationsCreateHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := app.GetSession(r)
 
-	usersRepo := NewUsersRepository(app.db)
+	usersRepo := repo.NewUsersRepository(app.db)
 
 	ok := app.recaptchaClient.Verify(*r)
 	if !ok {
@@ -28,7 +29,7 @@ func (app *Application) EmailConfirmationsCreateHandler(w http.ResponseWriter, r
 	user, _ := usersRepo.FindByEmail(r.PostFormValue("email"))
 
 	token, _ := securerandom.UrlSafeBase64(10, true)
-	user.emailConfirmationToken = &token
+	user.EmailConfirmationToken = &token
 	_, err := usersRepo.Update(user)
 	if err != nil {
 		log.Println(err)
@@ -50,7 +51,7 @@ func (app *Application) EmailConfirmationsShowHandler(w http.ResponseWriter, r *
 
 	token := r.URL.Query().Get("token")
 
-	usersRepo := NewUsersRepository(app.db)
+	usersRepo := repo.NewUsersRepository(app.db)
 
 	user, _ := usersRepo.FindByEmailConfirmationToken(token)
 	if user == nil {
@@ -60,11 +61,11 @@ func (app *Application) EmailConfirmationsShowHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	user.emailConfirmationToken = nil
-	user.isEmailConfirmed = true
+	user.EmailConfirmationToken = nil
+	user.IsEmailConfirmed = true
 	usersRepo.Update(user) // TODO Error handling
 
-	session.Values["userId"] = user.id
+	session.Values["userId"] = user.Id
 	session.AddFlash("Successfully confirmed your email address.")
 	session.Save(r, w)
 	http.Redirect(w, r, "/", 302)

@@ -7,6 +7,8 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/jonahgeorge/letterdrop/models"
+	repo "github.com/jonahgeorge/letterdrop/repositories"
 )
 
 func main() {
@@ -44,12 +46,12 @@ func main() {
 			handlers.LoggingHandler(os.Stdout, r))))
 }
 
-type AuthenticatedHandlerFunc func(http.ResponseWriter, *http.Request, *User)
+type AuthenticatedHandlerFunc func(http.ResponseWriter, *http.Request, *models.User)
 
 func (app *Application) RequireAuthentication(next AuthenticatedHandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, err := app.GetSession(r)
-		user, err := NewUsersRepository(app.db).FindById(session.Values["userId"].(int))
+		user, err := repo.NewUsersRepository(app.db).FindById(session.Values["userId"].(int))
 		if user == nil || err != nil {
 			session.AddFlash("You must be logged in!")
 			session.Save(r, w)
@@ -62,10 +64,10 @@ func (app *Application) RequireAuthentication(next AuthenticatedHandlerFunc) htt
 }
 
 func (app *Application) RequireEmailConfirmation(next AuthenticatedHandlerFunc) AuthenticatedHandlerFunc {
-	return AuthenticatedHandlerFunc(func(w http.ResponseWriter, r *http.Request, currentUser *User) {
+	return AuthenticatedHandlerFunc(func(w http.ResponseWriter, r *http.Request, currentUser *models.User) {
 		session, _ := app.GetSession(r)
 
-		if !currentUser.isEmailConfirmed {
+		if !currentUser.IsEmailConfirmed {
 			session.AddFlash("You must confirm your email address before continuing")
 			session.Save(r, w)
 			http.Redirect(w, r, "/email_confirmation/new", 302)

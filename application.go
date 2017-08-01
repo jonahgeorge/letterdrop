@@ -8,6 +8,7 @@ import (
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/sessions"
 	"github.com/haisum/recaptcha"
+	repo "github.com/jonahgeorge/letterdrop/repositories"
 	_ "github.com/lib/pq"
 	"github.com/sendgrid/sendgrid-go"
 )
@@ -42,7 +43,7 @@ func (app *Application) Render(w http.ResponseWriter, r *http.Request, name stri
 	session, _ := app.GetSession(r)
 
 	if session.Values["userId"] != nil {
-		user, _ := NewUsersRepository(app.db).FindById(session.Values["userId"].(int))
+		user, _ := repo.NewUsersRepository(app.db).FindById(session.Values["userId"].(int))
 		data["currentUser"] = user
 	}
 

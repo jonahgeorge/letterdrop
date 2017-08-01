@@ -1,7 +1,9 @@
-package main
+package repositories
 
 import (
 	"database/sql"
+
+	"github.com/jonahgeorge/letterdrop/models"
 )
 
 const (
@@ -24,58 +26,54 @@ func NewUsersRepository(db *sql.DB) *UsersRepository {
 	}
 }
 
-func (repo *UsersRepository) FindById(id int) (*User, error) {
-	user := new(User)
+func (repo *UsersRepository) FindById(id int) (*models.User, error) {
+	user := new(models.User)
 	row := repo.db.QueryRow(USERS_FIND_BY_ID_SQL, id)
-	err := repo.scanRow(row, user)
+	err := user.FromRow(row)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return user, err
 }
 
-func (repo *UsersRepository) FindByEmailAndPassword(email, password string) (*User, error) {
-	user := new(User)
+func (repo *UsersRepository) FindByEmailAndPassword(email, password string) (*models.User, error) {
+	user := new(models.User)
 	row := repo.db.QueryRow(USERS_FIND_BY_EMAIL_AND_PASSWORD_SQL, email, password)
-	err := repo.scanRow(row, user)
+	err := user.FromRow(row)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return user, err
 }
 
-func (repo *UsersRepository) FindByEmailConfirmationToken(token string) (*User, error) {
-	user := new(User)
+func (repo *UsersRepository) FindByEmailConfirmationToken(token string) (*models.User, error) {
+	user := new(models.User)
 	row := repo.db.QueryRow(USERS_FIND_BY_EMAIL_CONFIRMATION_TOKEN_SQL, token)
-	err := repo.scanRow(row, user)
+	err := user.FromRow(row)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return user, err
 }
 
-func (repo *UsersRepository) FindByEmail(email string) (*User, error) {
-	user := new(User)
+func (repo *UsersRepository) FindByEmail(email string) (*models.User, error) {
+	user := new(models.User)
 	row := repo.db.QueryRow(USERS_FIND_BY_EMAIL_SQL, email)
-	err := repo.scanRow(row, user)
+	err := user.FromRow(row)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return user, err
 }
 
-func (repo *UsersRepository) Create(user *User) (*User, error) {
-	row := repo.db.QueryRow(USERS_INSERT_SQL, user.name, user.email, user.passwordDigest, user.emailConfirmationToken)
-	err := repo.scanRow(row, user)
+func (repo *UsersRepository) Create(user *models.User) (*models.User, error) {
+	row := repo.db.QueryRow(USERS_INSERT_SQL, user.Name, user.Email, user.PasswordDigest, user.EmailConfirmationToken)
+	err := user.FromRow(row)
 	return user, err
 }
 
-func (repo *UsersRepository) Update(user *User) (*User, error) {
-	row := repo.db.QueryRow(USERS_UPDATE_SQL, user.id, user.name, user.email, user.passwordDigest, user.emailConfirmationToken, user.isEmailConfirmed)
-	err := repo.scanRow(row, user)
+func (repo *UsersRepository) Update(user *models.User) (*models.User, error) {
+	row := repo.db.QueryRow(USERS_UPDATE_SQL, user.Id, user.Name, user.Email, user.PasswordDigest, user.EmailConfirmationToken, user.IsEmailConfirmed)
+	err := user.FromRow(row)
 	return user, err
-}
-
-func (repo *UsersRepository) scanRow(row *sql.Row, user *User) error {
-	return row.Scan(&user.id, &user.name, &user.email, &user.passwordDigest, &user.createdAt, &user.updatedAt, &user.emailConfirmationToken, &user.isEmailConfirmed)
 }

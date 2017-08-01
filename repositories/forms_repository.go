@@ -1,7 +1,9 @@
-package main
+package repositories
 
 import (
 	"database/sql"
+
+	"github.com/jonahgeorge/letterdrop/models"
 )
 
 const (
@@ -23,50 +25,50 @@ func NewFormsRepository(db *sql.DB) *FormsRepository {
 	}
 }
 
-func (repo *FormsRepository) FindByUserId(userId int) ([]Form, error) {
-	var forms []Form
+func (repo *FormsRepository) FindByUserId(userId int) ([]models.Form, error) {
+	var forms []models.Form
 
 	rows, err := repo.db.Query(FORMS_FIND_BY_USER_ID_SQL, userId)
 	for rows.Next() {
-		form := new(Form)
-		err = repo.scanRow(rows, form)
+		form := new(models.Form)
+		err = form.FromRow(rows)
 		forms = append(forms, *form)
 	}
 
 	return forms, err
 }
 
-func (repo *FormsRepository) Create(userId int, name string, description, recaptchaSecretKey *string) (*Form, error) {
-	form := new(Form)
+func (repo *FormsRepository) Create(userId int, name string, description, recaptchaSecretKey *string) (*models.Form, error) {
+	form := new(models.Form)
 	row := repo.db.QueryRow(FORMS_INSERT_SQL, userId, name, description, recaptchaSecretKey)
-	err := repo.scanRow(row, form)
+	err := form.FromRow(row)
 	return form, err
 }
 
-func (repo *FormsRepository) FindById(id int) (*Form, error) {
-	form := new(Form)
+func (repo *FormsRepository) FindById(id int) (*models.Form, error) {
+	form := new(models.Form)
 	row := repo.db.QueryRow(FORMS_FIND_BY_ID_SQL, id)
-	err := repo.scanRow(row, form)
+	err := form.FromRow(row)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return form, err
 }
 
-func (repo *FormsRepository) FindByUuid(uuid string) (*Form, error) {
-	form := new(Form)
+func (repo *FormsRepository) FindByUuid(uuid string) (*models.Form, error) {
+	form := new(models.Form)
 	row := repo.db.QueryRow(FORMS_FIND_BY_UUID_SQL, uuid)
-	err := repo.scanRow(row, form)
+	err := form.FromRow(row)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return form, err
 }
 
-func (repo *FormsRepository) Update(id int, name string, description, recaptchaSecretKey *string) (*Form, error) {
-	form := new(Form)
+func (repo *FormsRepository) Update(id int, name string, description, recaptchaSecretKey *string) (*models.Form, error) {
+	form := new(models.Form)
 	row := repo.db.QueryRow(FORMS_UPDATE_SQL, id, name, description, recaptchaSecretKey)
-	err := repo.scanRow(row, form)
+	err := form.FromRow(row)
 	if err != nil && err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -75,12 +77,4 @@ func (repo *FormsRepository) Update(id int, name string, description, recaptchaS
 
 func (repo *FormsRepository) Delete(id int) (sql.Result, error) {
 	return repo.db.Exec(FORMS_DELETE_SQL, id)
-}
-
-type Scannable interface {
-	Scan(...interface{}) error
-}
-
-func (repo *FormsRepository) scanRow(row Scannable, form *Form) error {
-	return row.Scan(&form.id, &form.userId, &form.uuid, &form.name, &form.description, &form.createdAt, &form.updatedAt, &form.recaptchaSecretKey)
 }
