@@ -44,8 +44,9 @@ func main() {
 
 	log.Println("Listening on " + port)
 	log.Fatal(http.ListenAndServe(":"+port,
-		handlers.HTTPMethodOverrideHandler(
-			handlers.LoggingHandler(os.Stdout, r))))
+		handlers.CompressHandler(
+			handlers.HTTPMethodOverrideHandler(
+				handlers.LoggingHandler(os.Stdout, r)))))
 }
 
 type AuthenticatedHandlerFunc func(http.ResponseWriter, *http.Request, *models.User)
