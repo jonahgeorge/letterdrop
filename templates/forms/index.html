@@ -5,17 +5,24 @@
 
 <a class='btn btn-primary' href="/forms/new">Create Form</a>
 
-<br>
-<br>
-
-<div class='list-gropu'>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <!-- <th>Responses</th> -->
+      <th>Code</th>
+    </tr>
+  </thead>
+  <tbody>
   {% for form in forms %}
-  <a href='/forms/{{ form.Id}}' class='list-group-item'>
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{ form.Name }}</h5>
-    </div>
-    <p class="mb-1">{{ form.Description }}</p>
-  </a>
+  <tr>
+    <td>
+      <a href='/forms/{{ form.Id}}'>{{ form.Name }}</a>
+    </td>
+    <!-- <td>{{ form.Responses }}</td> -->
+    <td>{{ form.Uuid}}</td>
+  </tr>
   {% endfor %}
-</div> 
+  </tbody>
+</table> 
 {% endblock %}

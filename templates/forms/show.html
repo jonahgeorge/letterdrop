@@ -18,7 +18,7 @@
 
 <h4>Submissions</h4>
 
-<table class='table'>
+<table class='table table-striped'>
   <thead>
     <tr>
       <th>Id</th>
@@ -31,7 +31,7 @@
     <td>{{ submission.Id }}</td>
     <td>{{ submission.Body }}</td>
     <td>
-      <a class="btn btn-danger" href="/forms/{{ form.Id }}/submissions/{{ submission.Id }}" data-method="DELETE" rel="nofollow">Delete</a>
+      <a class="btn btn-sm btn-danger" href="/forms/{{ form.Id }}/submissions/{{ submission.Id }}" data-method="DELETE" rel="nofollow"><i class="icon icon-cross"></i></a>
     </td>
   </tr>
   {% endfor %}

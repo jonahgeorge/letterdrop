@@ -35,6 +35,8 @@ func main() {
 	r.HandleFunc("/forms", app.RequireAuthentication(app.RequireEmailConfirmation(app.FormsIndexHandler))).Methods("GET")
 	r.HandleFunc("/forms", app.RequireAuthentication(app.RequireEmailConfirmation(app.FormsCreateHandler))).Methods("POST")
 
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+
 	port, ok := os.LookupEnv("PORT")
 	if !ok {
 		port = "3000"
