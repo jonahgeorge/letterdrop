@@ -1,28 +1,27 @@
 {% extends "../layouts/public.html" %}
 
 {% block content %}
-<h1>Forms</h1>
+<div class="dashhead">
+  <div class="dashhead-titles">
+    <h6 class="dashhead-subtitle">Forms</h6>
+    <h3 class="dashhead-title">Overview</h3>
+  </div>
 
-<a class='btn btn-primary' href="/forms/new">Create Form</a>
+  <div class="dashhead-toolbar">
+    <div class="btn-group dashhead-toolbar-item btn-group-thirds">
+      <a class="btn btn-primary" href="/forms/new" class="">Create Form</a>
+    </div>
+  </div>
+</div>
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <!-- <th>Responses</th> -->
-      <th>Code</th>
-    </tr>
-  </thead>
-  <tbody>
+<div class="clearfix"></div>
+
+<div class="list-group pt-2">
   {% for form in forms %}
-  <tr>
-    <td>
-      <a href='/forms/{{ form.Id}}'>{{ form.Name }}</a>
-    </td>
-    <!-- <td>{{ form.Responses }}</td> -->
-    <td>{{ form.Uuid}}</td>
-  </tr>
+  <a href="/forms/{{ form.Id }}" class="list-group-item list-group-item-action flex-column align-items-start">
+    <h5 class="mb-1">{{ form.Name }}</h5>
+    <small>{{ form.Uuid }}</small>
+  </a>
   {% endfor %}
-  </tbody>
-</table> 
+</div>
 {% endblock %}

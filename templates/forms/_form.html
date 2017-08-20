@@ -1,14 +1,14 @@
 <div class="form-group">
-  <label class="form-label" for="name">Name</label>
-  <input class="form-input" id="name" name="name" type="text" value="{{ form.Name }}" required />
+  <label for="name">Name</label>
+  <input class="form-control" id="name" name="name" type="text" value="{{ form.Name }}" required />
 </div>
 
 <div class="form-group">
-  <label class="form-label" for="description">Description</label>
-  <textarea class="form-input" id="description" name="description" type="text" rows=5>{{ form.Description }}</textarea>
+  <label for="description">Description</label>
+  <textarea class="form-control" id="description" name="description" type="text" rows=5>{{ form.Description }}</textarea>
 </div>
 
 <div class="form-group">
-  <label class="form-label" for="recaptcha_secret_key">ReCaptcha Secret Key</label>
-  <input class="form-input" id="recaptcha_secret_key" name="recaptcha_secret_key" type="text" value="{{ form.RecaptchaSecretKey }}" />
+  <label for="recaptcha_secret_key">ReCaptcha Secret Key</label>
+  <input class="form-control" id="recaptcha_secret_key" name="recaptcha_secret_key" type="text" value="{{ form.RecaptchaSecretKey }}" />
 </div>

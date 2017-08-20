@@ -1,0 +1,65 @@
+dashhead::after {
+  display: block;
+  content: "";
+  clear: both; }
+
+@media (min-width: 768px) {
+  .dashhead-titles {
+    float: left; } }
+
+.dashhead-title {
+  margin-top: 0; }
+
+.dashhead-subtitle {
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-weight: normal;
+  font-size: 85%;
+  color: #aeaeae;
+  letter-spacing: 1px;
+  text-transform: uppercase; }
+
+.dashhead-toolbar {
+  margin-left: 0; }
+  .dashhead-toolbar .input-with-icon {
+    width: 100%;
+    margin-bottom: 10px;
+    margin-left: 0; }
+  @media (min-width: 768px) {
+    .dashhead-toolbar {
+      float: right;
+      margin-top: 12px; }
+      .dashhead-toolbar .input-with-icon {
+        width: 180px;
+        margin-bottom: 0; } }
+
+.dashhead-toolbar-divider {
+  float: left;
+  width: 1px;
+  height: 34px;
+  margin-left: 10px;
+  margin-right: 10px;
+  background-color: #eee; }
+
+.dashhead-toolbar-item {
+  float: left; }
+  @media (max-width: 767px) {
+    .dashhead-toolbar-item.btn-group-halves {
+      width: 100%; }
+      .dashhead-toolbar-item.btn-group-halves .btn {
+        width: 50%;
+        margin-left: 0; }
+    .dashhead-toolbar-item.btn-group-thirds {
+      width: 100%; }
+      .dashhead-toolbar-item.btn-group-thirds .btn {
+        width: 33%;
+        margin-left: 0; }
+        .dashhead-toolbar-item.btn-group-thirds .btn:last-child {
+          width: 34%; }
+    .dashhead-toolbar-item.btn-group-fourths {
+      width: 100%; }
+      .dashhead-toolbar-item.btn-group-fourths .btn {
+        width: 25%;
+        margin-left: 0; } }
+
+
