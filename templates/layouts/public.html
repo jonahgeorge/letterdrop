@@ -17,35 +17,37 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="/">LetterDrop</a>
+      <div class="container">
+        <a class="navbar-brand" href="/">LetterDrop</a>
 
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          {% if currentUser %}
-          <li class="nav-item">
-            <a class="nav-link" href="/forms">Forms</a>
-          </li>
-          {% endif %}
-        </ul>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            {% if currentUser %}
+            <li class="nav-item">
+              <a class="nav-link" href="/forms">Forms</a>
+            </li>
+            {% endif %}
+          </ul>
 
-        <ul class="navbar-nav">
-          {% if currentUser %}
-          <li class="nav-item">
-            <a class="nav-link" href="/logout">Logout</a>
-          </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="/login">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/signup">Sign up</a>
-          </li>
-          {% endif %}
-        </ul>
+          <ul class="navbar-nav">
+            {% if currentUser %}
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="/login">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/signup">Sign up</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
       </div>
     </nav>
 
@@ -59,8 +61,8 @@
     </div>
 
     <!--
-    <script type="text/javascript">
-    (function() {
+      <script type="text/javascript">
+(function() {
       var t   = document.createElement('script');
       t.type  = 'text/javascript';
       t.async = true;
@@ -70,7 +72,7 @@
       var s = document.getElementsByTagName('script')[0];
       s.parentNode.insertBefore(t, s);
     })();
-    </script>
-    -->
+      </script>
+      -->
   </body>
 </html>
