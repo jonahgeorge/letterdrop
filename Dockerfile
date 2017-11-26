@@ -1,9 +1,13 @@
-FROM golang:onbuild
+FROM golang:1.9 AS builder
+RUN curl -fsSL -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 && \
+  chmod +x /usr/local/bin/dep
+WORKDIR /go/src/github.com/jonahgeorge/letterdrop/
+COPY . /go/src/github.com/jonahgeorge/letterdrop/
+RUN dep ensure -vendor-only
+RUN CGO_ENABLED=0 go build -a -installsuffix cgo
 
-RUN apt-get update
-RUN apt-get install -y curl apt-transport-https
-
-RUN curl -L https://packagecloud.io/mattes/migrate/gpgkey | apt-key add -
-RUN echo "deb https://packagecloud.io/mattes/migrate/ubuntu/ xenial main" > /etc/apt/sources.list.d/migrate.list
-RUN apt-get update
-RUN apt-get install -y migrate
+FROM alpine
+CMD ["/letterdrop"]
+COPY --from=builder /go/src/github.com/jonahgeorge/letterdrop/public /public
+COPY --from=builder /go/src/github.com/jonahgeorge/letterdrop/templates /templates
+COPY --from=builder /go/src/github.com/jonahgeorge/letterdrop/letterdrop /letterdrop

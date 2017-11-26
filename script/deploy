@@ -5,11 +5,8 @@ set -e
 # Build image
 docker build -t jonahgeorge/letterdrop .
 
-# Tag image
 docker tag jonahgeorge/letterdrop registry.heroku.com/letterdrop/web
-
-# Push image
 docker push registry.heroku.com/letterdrop/web
 
 # Run pending database migrations
-heroku run 'migrate -path migrations -database $DATABASE_URL up'
+# heroku run 'migrate -path migrations -database $DATABASE_URL up'
