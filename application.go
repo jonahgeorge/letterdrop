@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"os"
+	"log"
 
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/sessions"
@@ -22,7 +23,15 @@ type Application struct {
 }
 
 func NewApplication() *Application {
-	db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
 	sessions := sessions.NewCookieStore([]byte(os.Getenv("SECRET_TOKEN")))
 	emailClient := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
 	recaptchaClient := recaptcha.R{Secret: os.Getenv("RECAPTCHA_SECRET_TOKEN")}
