@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	 _ "github.com/joho/godotenv/autoload"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jonahgeorge/letterdrop/models"
